@@ -1,0 +1,77 @@
+﻿@model List<LibraryWeb.Models.Book>
+
+@{
+    ViewData["Title"] = "All Books";
+}
+
+<h1>Available Books 📚</h1>
+
+<!-- Filter and Sorting Controls -->
+<form method="post" asp-action="Index">
+    <!-- Search by Title, ISBN, or Description -->
+    <input type="text" name="searchQuery" placeholder="Search by title, ISBN, or description" class="form-control" />
+
+    <!-- Filter by Author -->
+    <select name="filterAuthor" class="form-control">
+        <option value="">All Authors</option>
+        @foreach (var author in Model.Select(b => b.Author).Distinct())
+        {
+            <option value="@author">@author</option>
+        }
+    </select>
+
+    <!-- Filter by Genre -->
+    <select name="filterGenre" class="form-control">
+        <option value="">All Genres</option>
+        @foreach (var genre in Model.Select(b => b.Genre).Distinct())
+        {
+            <option value="@genre">@genre</option>
+        }
+    </select>
+
+    <!-- Filter by Price Range -->
+    <input type="number" name="filterPriceMin" placeholder="Min Price" class="form-control" />
+    <input type="number" name="filterPriceMax" placeholder="Max Price" class="form-control" />
+
+    <!-- Filter by Availability -->
+    <select name="filterAvailability" class="form-control">
+        <option value="">Select Availability</option>
+        <option value="true">In Stock</option>
+        <option value="false">Out of Stock</option>
+    </select>
+
+    <!-- Sort by -->
+    <select name="sortOrder" class="form-control">
+        <option value="title">Sort by Title</option>
+        <option value="publicationDate">Sort by Publication Date</option>
+        <option value="price">Sort by Price</option>
+        <option value="popularity">Sort by Popularity</option>
+    </select>
+
+    <button type="submit" class="btn btn-primary">Apply Filters</button>
+</form>
+
+<!-- Book Table -->
+<table class="table">
+    <thead>
+        <tr>
+            <th>Title</th>
+            <th>Author</th>
+            <th>Genre</th>
+            <th>Price</th>
+            <th>Available</th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var book in Model)
+        {
+            <tr>
+                <td>@book.Title</td>
+                <td>@book.Author</td>
+                <td>@book.Genre</td>
+                <td>$@book.Price</td>
+                <td>@(book.InStock ? "Yes" : "No")</td>
+            </tr>
+        }
+    </tbody>
+</table>

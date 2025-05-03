@@ -1,0 +1,9 @@
+﻿@model LibraryWeb.Models.LoginModel
+
+<h2>Login</h2>
+
+<form asp-action="Login" method="post">
+    <input asp-for="Email" placeholder="Email" class="form-control" />
+    <input asp-for="Password" placeholder="Password" type="password" class="form-control" />
+    <button type="submit" class="btn btn-success">Login</button>
+</form>

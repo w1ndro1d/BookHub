@@ -1,0 +1,10 @@
+﻿@model LibraryWeb.Models.RegisterModel
+
+<h2>Register</h2>
+
+<form asp-action="Register" method="post">
+    <input asp-for="FullName" placeholder="Full Name" class="form-control" />
+    <input asp-for="Email" placeholder="Email" class="form-control" />
+    <input asp-for="Password" placeholder="Password" type="password" class="form-control" />
+    <button type="submit" class="btn btn-primary">Register</button>
+</form>
