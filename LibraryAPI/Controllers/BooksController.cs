@@ -2,6 +2,7 @@
 using LibraryAPI.Models;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using System;
 
 namespace LibraryAPI.Controllers
 {
@@ -34,7 +35,8 @@ namespace LibraryAPI.Controllers
             [FromQuery] string filterLanguage = null,
             [FromQuery] string filterFormat = null,
             [FromQuery] string filterISBN = null,
-            [FromQuery] string sortOrder = "Title")
+            [FromQuery] string sortOrder = "Title",
+            [FromQuery] int? filterAvailability = null)
         {
 
             var query = _dbContext.Books.AsQueryable();
@@ -81,6 +83,11 @@ namespace LibraryAPI.Controllers
             if (filterPriceMax.HasValue)
             {
                 query = query.Where(b => b.Price <= filterPriceMax.Value);
+            }
+
+            if (filterAvailability.HasValue)
+            {
+                query = query.Where(b => b.InStock == filterAvailability);
             }
 
             // Apply sorting

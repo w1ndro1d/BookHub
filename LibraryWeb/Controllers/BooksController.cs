@@ -11,23 +11,52 @@ namespace LibraryWeb.Controllers
         {
             _httpClientFactory = httpClientFactory;
         }
-        public async Task<IActionResult> Index()
+        //apply pagination to display list of all books
+        [HttpGet]
+        public async Task<IActionResult> Index(int page = 1, int pageSize = 15)
         {
             var client = _httpClientFactory.CreateClient("API");
             var books = await client.GetFromJsonAsync<List<Book>>("api/books/all");
-            return View(books);
+
+            if(books == null)
+            {
+                return View(new List<Book>());
+            }
+            
+            int totalBooks = books.Count;
+            var pagedBooks = books.OrderBy(b => b.Title).Skip((page - 1) * pageSize).Take(pageSize).ToList();
+
+            ViewBag.TotalPages = (int)Math.Ceiling(totalBooks / (double)pageSize);
+            ViewBag.CurrentPage = page;
+
+            var viewModel = new BooksViewModel
+            {
+                Books = pagedBooks
+            };
+
+            return View(viewModel);
         }
 
         [HttpPost]
-        public async Task<IActionResult> Index(string searchQuery, string filterAuthor, string filterGenre, decimal? filterPriceMin, decimal? filterPriceMax, string sortOrder)
+        public async Task<IActionResult> Index(int page = 1, int pageSize = 15, string searchQuery = "", string filterAuthor = "", string filterGenre = "", decimal? filterPriceMin = null, decimal? filterPriceMax = null, string sortOrder = "", int? filterAvailability = null)
         {
             var client = _httpClientFactory.CreateClient("API");
-
-            var url = "api/Books?"; // Start the URL correctly without the extra &
-
-            // Add filter parameters dynamically, starting from the first filter
+            var url = "api/Books?";
             bool isFirstParam = true;
 
+            if (page > 0) // Ensure page is valid
+            {
+                url += $"{(isFirstParam ? "" : "&")}page={page}";
+                isFirstParam = false;
+            }
+
+            if (pageSize > 0) // Ensure pageSize is valid
+            {
+                url += $"{(isFirstParam ? "" : "&")}pageSize={pageSize}";
+                isFirstParam = false;
+            }
+
+            // Add filter parameters dynamically
             if (!string.IsNullOrEmpty(searchQuery))
             {
                 url += $"{(isFirstParam ? "" : "&")}searchQuery={Uri.EscapeDataString(searchQuery)}";
@@ -63,9 +92,36 @@ namespace LibraryWeb.Controllers
                 url += $"{(isFirstParam ? "" : "&")}sortOrder={Uri.EscapeDataString(sortOrder)}";
             }
 
-            // Now, the URL should be well-formed
+            if (filterAvailability.HasValue)
+            {
+                url += $"{(isFirstParam ? "" : "&")}filterAvailability={filterAvailability}";
+                isFirstParam = false;
+            }
+
+            // URL should have all parameters including pagination
             var books = await client.GetFromJsonAsync<List<Book>>(url);
-            return View(books); // Return filtered/sorted books
+            var pagedBooks = books.OrderBy(b => sortOrder).Skip((page - 1) * pageSize).Take(pageSize).ToList();
+
+            ViewBag.TotalPages = (int)Math.Ceiling(books.Count / (double)pageSize);
+            ViewBag.CurrentPage = page;
+
+            var viewModel = new BooksViewModel
+            {
+                Books = pagedBooks,
+                SearchQuery = searchQuery,
+                FilterAuthor = filterAuthor,
+                FilterGenre = filterGenre,
+                FilterPriceMin = filterPriceMin,
+                FilterPriceMax = filterPriceMax,
+                SortOrder = sortOrder,
+                FilterAvailability = filterAvailability,
+                Page = page,
+                PageSize = pageSize,
+                TotalPages = (int)Math.Ceiling(books.Count / (double)pageSize)
+            }; // Return filtered/sorted and paginated books
+
+            return View(viewModel);
         }
+
     }
 }

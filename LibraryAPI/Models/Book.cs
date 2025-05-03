@@ -8,11 +8,11 @@
         public required string Genre { get; set; }
         public required string Description { get; set; }
         public decimal Price { get; set; }
-        public bool InStock { get; set; }
+        public int InStock { get; set; }  //0-out of stock, 1-stock available for purchase, 2-available only in library(can't be purchased)
         public required string Language { get; set; }
         public required string Format { get; set; }
         public required string ISBN { get; set; }
-        public int Rating { get; set; }
+        public double Rating { get; set; }
         public DateTime PublicationDate { get; set; }
 
     }

@@ -1,4 +1,4 @@
-﻿@model List<LibraryWeb.Models.Book>
+﻿@model LibraryWeb.Models.BooksViewModel
 
 @{
     ViewData["Title"] = "All Books";
@@ -14,7 +14,7 @@
     <!-- Filter by Author -->
     <select name="filterAuthor" class="form-control">
         <option value="">All Authors</option>
-        @foreach (var author in Model.Select(b => b.Author).Distinct())
+        @foreach (var author in Model.Books.Select(b => b.Author).Distinct())
         {
             <option value="@author">@author</option>
         }
@@ -23,7 +23,7 @@
     <!-- Filter by Genre -->
     <select name="filterGenre" class="form-control">
         <option value="">All Genres</option>
-        @foreach (var genre in Model.Select(b => b.Genre).Distinct())
+        @foreach (var genre in Model.Books.Select(b => b.Genre).Distinct())
         {
             <option value="@genre">@genre</option>
         }
@@ -35,9 +35,10 @@
 
     <!-- Filter by Availability -->
     <select name="filterAvailability" class="form-control">
-        <option value="">Select Availability</option>
-        <option value="true">In Stock</option>
-        <option value="false">Out of Stock</option>
+        <option value="">Availability - All</option>
+        <option value=1>Available</option>
+        <option value=0>Out of Stock</option>
+        <option value=2>Library-Only</option>
     </select>
 
     <!-- Sort by -->
@@ -60,18 +61,65 @@
             <th>Genre</th>
             <th>Price</th>
             <th>Available</th>
+            <th>Rating</th>
         </tr>
     </thead>
     <tbody>
-        @foreach (var book in Model)
+        @foreach (var book in Model.Books)
         {
             <tr>
                 <td>@book.Title</td>
                 <td>@book.Author</td>
                 <td>@book.Genre</td>
                 <td>$@book.Price</td>
-                <td>@(book.InStock ? "Yes" : "No")</td>
+                <td>
+                    @{
+                        var availabilityText = book.InStock switch
+                        {
+                            0 => "Out of Stock",
+                            1 => "Yes",
+                            2 => "Library-Only"
+                        };
+                    }
+                    @availabilityText
+                </td>
+                <td>@book.Rating ⭐</td>
             </tr>
         }
     </tbody>
 </table>
+
+<!-- Pagination Controls -->
+<nav aria-label="Page navigation">
+    <ul class="pagination justify-content-center">
+        @for (int i = 1; i <= (int)ViewBag.TotalPages; i++)
+        {
+            <li class="page-item @(i == (int)ViewBag.CurrentPage ? "active" : "")">
+                <form method="post" asp-controller="Books" asp-action="Index">
+                    <input type="hidden" name="searchQuery" value="@Model.SearchQuery" />
+                    <input type="hidden" name="filterAuthor" value="@Model.FilterAuthor" />
+                    <input type="hidden" name="filterGenre" value="@Model.FilterGenre" />
+                    <input type="hidden" name="filterPriceMin" value="@Model.FilterPriceMin" />
+                    <input type="hidden" name="filterPriceMax" value="@Model.FilterPriceMax" />
+                    <input type="hidden" name="sortOrder" value="@Model.SortOrder" />
+                    <input type="hidden" name="filterAvailability" value="@Model.FilterAvailability" />
+                    <input type="hidden" name="pageSize" value="@Model.PageSize" />
+                    <button type="submit" name="page" value="@i" class="page-link">
+                        @i
+                    </button>
+                </form>
+            </li>
+        }
+    </ul>
+</nav>
+
+@* <nav aria-label="Page navigation">
+    <ul class="pagination justify-content-center">
+        @for (int i = 1; i <= (int)ViewBag.TotalPages; i++)
+        {
+            <li class="page-item @(i == (int)ViewBag.CurrentPage ? "active" : "")">
+                <a class="page-link" asp-action="Index" asp-route-page="@i">@i</a>
+            </li>
+        }
+    </ul>
+</nav> *@
