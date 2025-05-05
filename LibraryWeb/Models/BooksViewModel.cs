@@ -13,5 +13,8 @@
         public int Page { get; set; } = 1;
         public int PageSize { get; set; } = 15;
         public int TotalPages { get; set; }
+
+        //for type of book
+        public string Category { get; set; } = "All";   //default category should be All
     }
 }

@@ -38,7 +38,7 @@ namespace LibraryWeb.Controllers
         }
 
         [HttpPost]
-        public async Task<IActionResult> Index(int page = 1, int pageSize = 15, string searchQuery = "", string filterAuthor = "", string filterGenre = "", decimal? filterPriceMin = null, decimal? filterPriceMax = null, string sortOrder = "", int? filterAvailability = null)
+        public async Task<IActionResult> Index(int page = 1, int pageSize = 15, string searchQuery = "", string filterAuthor = "", string filterGenre = "", decimal? filterPriceMin = null, decimal? filterPriceMax = null, string sortOrder = "", int? filterAvailability = null, string category = "")
         {
             var client = _httpClientFactory.CreateClient("API");
             var url = "api/Books?";
@@ -98,6 +98,12 @@ namespace LibraryWeb.Controllers
                 isFirstParam = false;
             }
 
+            if (!string.IsNullOrEmpty(category))
+            {
+                url += $"{(isFirstParam ? "" : "&")}category={Uri.EscapeDataString(category)}";
+                isFirstParam = false;
+            }
+
             // URL should have all parameters including pagination
             var books = await client.GetFromJsonAsync<List<Book>>(url);
             var pagedBooks = books.OrderBy(b => sortOrder).Skip((page - 1) * pageSize).Take(pageSize).ToList();
@@ -117,7 +123,8 @@ namespace LibraryWeb.Controllers
                 FilterAvailability = filterAvailability,
                 Page = page,
                 PageSize = pageSize,
-                TotalPages = (int)Math.Ceiling(books.Count / (double)pageSize)
+                TotalPages = (int)Math.Ceiling(books.Count / (double)pageSize),
+                Category = category
             }; // Return filtered/sorted and paginated books
 
             return View(viewModel);

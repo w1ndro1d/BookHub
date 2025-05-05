@@ -36,7 +36,8 @@ namespace LibraryAPI.Controllers
             [FromQuery] string filterFormat = null,
             [FromQuery] string filterISBN = null,
             [FromQuery] string sortOrder = "Title",
-            [FromQuery] int? filterAvailability = null)
+            [FromQuery] int? filterAvailability = null,
+            [FromQuery] string category = null)
         {
 
             var query = _dbContext.Books.AsQueryable();
@@ -88,6 +89,22 @@ namespace LibraryAPI.Controllers
             if (filterAvailability.HasValue)
             {
                 query = query.Where(b => b.InStock == filterAvailability);
+            }
+
+            // Apply category filters
+            if (!string.IsNullOrEmpty(category))
+            {
+                var normalized = category.Trim().ToLower();
+                query = normalized switch
+                {
+                    "bestsellers" => query.Where(b => b.IsBestseller),
+                    "awardwinners" => query.Where(b => b.HasAwards),
+                    "newreleases" => query.Where(b => b.PublicationDate >= DateTime.Now.AddMonths(-3)), //published in the last 3 months
+                    "newarrivals" => query.Where(b => b.ListedDate >= DateTime.Now.AddMonths(-1)),  //listed date in the past month
+                    "comingsoon" => query.Where(b => b.PublicationDate > DateTime.Now), //will be published at a later date
+                    "deals" => query.Where(b => b.Discount > 0),
+                    _ => query
+                };
             }
 
             // Apply sorting

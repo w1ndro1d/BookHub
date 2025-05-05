@@ -15,5 +15,11 @@
         public double Rating { get; set; }
         public DateTime PublicationDate { get; set; }
 
+        //added later
+        public bool IsBestseller { get; set; }
+        public bool HasAwards { get; set; }
+        public DateTime ListedDate { get; set; }
+        public decimal Discount { get; set; }  // 0-no discount
+
     }
 }

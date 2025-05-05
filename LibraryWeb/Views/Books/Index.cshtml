@@ -2,9 +2,12 @@
 
 @{
     ViewData["Title"] = "All Books";
+    string[] categories = { "all", "bestsellers", "awardwinners", "newreleases", "newarrivals", "comingsoon", "deals" };
 }
 
 <h1>Available Books 📚</h1>
+
+
 
 <!-- Filter and Sorting Controls -->
 <form method="post" asp-action="Index">
@@ -51,6 +54,39 @@
 
     <button type="submit" class="btn btn-primary">Apply Filters</button>
 </form>
+
+
+@* Browse by category *@
+<div class="mb-4 text-center">
+    <strong>Browse by Category:</strong><br />
+    @foreach (var cat in categories)
+    {
+        var label = cat
+        .Replace("awardwinners", "Award Winners")
+        .Replace("newreleases", "New Releases")
+        .Replace("newarrivals", "New Arrivals")
+        .Replace("comingsoon", "Coming Soon")
+        .Replace("bestsellers", "Best Sellers")
+        .Replace("deals", "Deals")
+        .Replace("all", "All");
+
+        <form method="post" asp-action="Index" class="d-inline">
+            <input type="hidden" name="category" value="@cat" />
+            <input type="hidden" name="searchQuery" value="@Model.SearchQuery" />
+            <input type="hidden" name="filterAuthor" value="@Model.FilterAuthor" />
+            <input type="hidden" name="filterGenre" value="@Model.FilterGenre" />
+            <input type="hidden" name="filterPriceMin" value="@Model.FilterPriceMin" />
+            <input type="hidden" name="filterPriceMax" value="@Model.FilterPriceMax" />
+            <input type="hidden" name="sortOrder" value="@Model.SortOrder" />
+            <input type="hidden" name="filterAvailability" value="@Model.FilterAvailability" />
+            <input type="hidden" name="pageSize" value="@Model.PageSize" />
+            <button type="submit" class="btn btn-outline-secondary m-1 @(Model.Category?.Equals(cat, StringComparison.OrdinalIgnoreCase) == true ? "active" : "")">
+                @label
+            </button>
+        </form>
+    }
+</div>
+
 
 <!-- Book Table -->
 <table class="table">
@@ -104,6 +140,7 @@
                     <input type="hidden" name="sortOrder" value="@Model.SortOrder" />
                     <input type="hidden" name="filterAvailability" value="@Model.FilterAvailability" />
                     <input type="hidden" name="pageSize" value="@Model.PageSize" />
+                    <input type="hidden" name="category" value="@Model.Category" />
                     <button type="submit" name="page" value="@i" class="page-link">
                         @i
                     </button>
