@@ -1,5 +1,9 @@
 ﻿using LibraryWeb.Models;
+using Microsoft.AspNetCore.Authentication.Cookies;
+using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Mvc;
+using System.IdentityModel.Tokens.Jwt;
+using System.Security.Claims;
 
 namespace LibraryWeb.Controllers
 {
@@ -48,6 +52,24 @@ namespace LibraryWeb.Controllers
                 var result = await response.Content.ReadFromJsonAsync<LoginResult>();
                 HttpContext.Session.SetString("JWTToken", result.Token);
 
+                //also set member id to see who is logged in
+                var handler = new JwtSecurityTokenHandler();
+                var jwt = handler.ReadJwtToken(result.Token);
+                var claims = jwt.Claims;
+
+                //create ClaimsIdentity from JWT claims
+                var identity = new ClaimsIdentity(claims, CookieAuthenticationDefaults.AuthenticationScheme);
+                var principal = new ClaimsPrincipal(identity);
+
+                // sign the user in with cookie auth
+                await HttpContext.SignInAsync(CookieAuthenticationDefaults.AuthenticationScheme, principal);
+
+                var memberId = claims.FirstOrDefault(c => c.Type == "memberId")?.Value;
+                if (memberId != null)
+                {
+                    HttpContext.Session.SetInt32("MemberId", int.Parse(memberId));
+                }
+
                 return RedirectToAction("Index", "Books");
             }
 
@@ -60,9 +82,14 @@ namespace LibraryWeb.Controllers
             public string Token { get; set; }
         }
 
-        public IActionResult Logout()
+        public async Task<IActionResult> Logout()
         {
             HttpContext.Session.Remove("JWTToken");
+            // Sign out from cookie auth
+            await HttpContext.SignOutAsync(CookieAuthenticationDefaults.AuthenticationScheme);
+
+            HttpContext.Session.Clear();
+            Response.Cookies.Delete(".AspNetCore.Cookies");
             return RedirectToAction("Index", "Home");
         }
     }

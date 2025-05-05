@@ -1,5 +1,6 @@
 ﻿@using System.IdentityModel.Tokens.Jwt
 @using System.Security.Claims
+@using Microsoft.AspNetCore.Authorization
 @{
     var token = Context.Session.GetString("JWTToken");
     string loggedInUserEmail = null;
@@ -41,7 +42,7 @@
 
                     <!-- Login / Logout buttons -->
                     <ul class="navbar-nav">
-                        @if (!string.IsNullOrEmpty(token))
+                        @if (!string.IsNullOrEmpty(token) || User.Identity.IsAuthenticated)
                         {
                             <li class="nav-item">
                                 <span class="nav-link">@loggedInUserEmail</span>

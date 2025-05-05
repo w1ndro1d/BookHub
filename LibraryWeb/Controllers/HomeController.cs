@@ -8,6 +8,9 @@ namespace LibraryWeb.Controllers
     {
        public IActionResult Index()
         {
+            //// Clear session on app start to ensure user is logged out
+            //Response.Cookies.Delete(".AspNetCore.Cookies");
+            //HttpContext.Session.Clear();
             return View();
         }
 

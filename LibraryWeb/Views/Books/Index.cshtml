@@ -98,6 +98,7 @@
             <th>Price</th>
             <th>Available</th>
             <th>Rating</th>
+            <th>Actions</th>
         </tr>
     </thead>
     <tbody>
@@ -120,10 +121,39 @@
                     @availabilityText
                 </td>
                 <td>@book.Rating ⭐</td>
+
+                <td>
+                @using Microsoft.AspNetCore.Authorization
+                @if (User.Identity.IsAuthenticated)
+                {
+                    <form method="post" asp-controller="Books" asp-action="Bookmark" style="display:inline">
+                        <input type="hidden" name="bookId" value="@book.Id" />
+                        <button type="submit" class="btn btn-outline-warning btn-sm" title="Bookmark">
+                            📌
+                        </button>
+                    </form>
+
+                    @if (book.InStock == 1)
+                    {
+                        <form method="post" asp-controller="Cart" asp-action="AddToCart" style="display:inline">
+                            <input type="hidden" name="bookId" value="@book.Id" />
+                            <button type="submit" class="btn btn-outline-success btn-sm" title="Add to Cart">
+                                🛒
+                            </button>
+                        </form>
+                    }
+                }
+            else
+            {
+                <span class="text-muted">Login to Bookmark or Buy</span>
+            }
+                </td>
             </tr>
         }
     </tbody>
 </table>
+
+@* <p>User is @(User.Identity.IsAuthenticated ? "logged in" : "logged out")</p> *@
 
 <!-- Pagination Controls -->
 <nav aria-label="Page navigation">

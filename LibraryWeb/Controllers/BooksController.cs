@@ -1,4 +1,5 @@
 ﻿using LibraryWeb.Models;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 namespace LibraryWeb.Controllers
@@ -11,6 +12,12 @@ namespace LibraryWeb.Controllers
         {
             _httpClientFactory = httpClientFactory;
         }
+
+        private int? GetLoggedInMemberId()
+        {
+            return HttpContext.Session.GetInt32("MemberId");
+        }
+
         //apply pagination to display list of all books
         [HttpGet]
         public async Task<IActionResult> Index(int page = 1, int pageSize = 15)
