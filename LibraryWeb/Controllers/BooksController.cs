@@ -1,6 +1,9 @@
 ﻿using LibraryWeb.Models;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using System.Net.Http.Headers;
+using System.Text.Json;
+using System.Text;
 
 namespace LibraryWeb.Controllers
 {
@@ -135,6 +138,39 @@ namespace LibraryWeb.Controllers
             }; // Return filtered/sorted and paginated books
 
             return View(viewModel);
+        }
+
+        [HttpPost]
+        [Authorize]
+        public async Task<IActionResult> Bookmark(int bookId)
+        {
+            var token = HttpContext.Session.GetString("JWTToken");
+
+            if (string.IsNullOrEmpty(token))
+            {
+                TempData["BookmarkMessage"] = "You must be logged in to bookmark books.";
+                return RedirectToAction("Index");
+            }
+
+            var client = _httpClientFactory.CreateClient("API");
+            client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", token);
+
+            var payload = new { BookId = bookId };
+            var json = new StringContent(JsonSerializer.Serialize(payload), Encoding.UTF8, "application/json");
+
+            var response = await client.PostAsync("api/bookmark", json);
+
+            if (response.IsSuccessStatusCode)
+            {
+                TempData["BookmarkMessage"] = "Bookmark successful!";
+            }
+            else
+            {
+                var error = await response.Content.ReadAsStringAsync();
+                TempData["BookmarkMessage"] = $"Failed to bookmark: {error}";
+            }
+
+            return RedirectToAction("Index");
         }
 
     }

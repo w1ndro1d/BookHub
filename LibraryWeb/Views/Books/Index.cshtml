@@ -7,6 +7,13 @@
 
 <h1>Available Books 📚</h1>
 
+@if (TempData["BookmarkMessage"] != null)
+{
+    <div class="alert alert-info">
+        @TempData["BookmarkMessage"]
+    </div>
+}
+
 
 
 <!-- Filter and Sorting Controls -->
@@ -126,22 +133,24 @@
                 @using Microsoft.AspNetCore.Authorization
                 @if (User.Identity.IsAuthenticated)
                 {
-                    <form method="post" asp-controller="Books" asp-action="Bookmark" style="display:inline">
-                        <input type="hidden" name="bookId" value="@book.Id" />
-                        <button type="submit" class="btn btn-outline-warning btn-sm" title="Bookmark">
-                            📌
-                        </button>
-                    </form>
-
-                    @if (book.InStock == 1)
-                    {
-                        <form method="post" asp-controller="Cart" asp-action="AddToCart" style="display:inline">
+                    <div>
+                        <form method="post" asp-controller="Books" asp-action="Bookmark" style="display:inline-block; margin-bottom: 5px;">
                             <input type="hidden" name="bookId" value="@book.Id" />
-                            <button type="submit" class="btn btn-outline-success btn-sm" title="Add to Cart">
-                                🛒
+                            <button type="submit" class="btn btn-outline-warning btn-sm" title="Bookmark">
+                                📌 Bookmark
                             </button>
                         </form>
-                    }
+
+                        @if (book.InStock == 1)
+                        {
+                            <form method="post" asp-controller="Cart" asp-action="AddToCart" style="display:inline-block">
+                                <input type="hidden" name="bookId" value="@book.Id" />
+                                <button type="submit" class="btn btn-outline-success btn-sm" title="Add to Cart">
+                                    🛒 Buy
+                                </button>
+                            </form>
+                        }
+                    </div>
                 }
             else
             {
