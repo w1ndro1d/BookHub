@@ -1,0 +1,57 @@
+﻿@model List<LibraryWeb.Models.Book>
+
+@{
+    ViewData["Title"] = "My Bookmarks";
+}
+
+<h2>My Bookmarked Listings</h2>
+
+@if (TempData["BookmarkMessage"] != null)
+{
+    <div class="alert alert-info">
+        @TempData["BookmarkMessage"]
+    </div>
+}
+
+@if (!Model.Any())
+{
+    <p class="text-muted">You haven’t bookmarked any books yet.</p>
+}
+else
+{
+    <table class="table">
+        <thead>
+            <tr>
+                <th>Title</th>
+                <th>Author</th>
+                <th>Genre</th>
+                <th>Price</th>
+                <th>Availability</th>
+                <th>Action</th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var book in Model)
+            {
+                <tr>
+                    <td>@book.Title</td>
+                    <td>@book.Author</td>
+                    <td>@book.Genre</td>
+                    <td>$@book.Price</td>
+                    <td>@(book.InStock == 1 ? "Yes" : book.InStock == 0 ? "Out of Stock" : "Library-Only")</td>
+                    <td>
+                        @if (book.InStock == 1)
+                        {
+                            <form method="post" asp-controller="Cart" asp-action="AddToCart" style="display:inline-block">
+                                <input type="hidden" name="bookId" value="@book.Id" />
+                                <button type="submit" class="btn btn-outline-success btn-sm" title="Add to Cart">
+                                    🛒 Add to Cart
+                                </button>
+                            </form>
+                        }
+                    </td>
+                </tr>
+            }
+        </tbody>
+    </table>
+}

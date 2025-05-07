@@ -5,7 +5,7 @@
     string[] categories = { "all", "bestsellers", "awardwinners", "newreleases", "newarrivals", "comingsoon", "deals" };
 }
 
-<h1>Available Books 📚</h1>
+@* <h1>Available Books</h1> *@
 
 @if (TempData["BookmarkMessage"] != null)
 {
@@ -13,8 +13,6 @@
         @TempData["BookmarkMessage"]
     </div>
 }
-
-
 
 <!-- Filter and Sorting Controls -->
 <form method="post" asp-action="Index">
@@ -59,13 +57,17 @@
         <option value="popularity">Sort by Popularity</option>
     </select>
 
-    <button type="submit" class="btn btn-primary">Apply Filters</button>
+    <div class="d-flex justify-content-center">
+        <button type="submit" class="btn btn-primary">Apply Filters</button>
+    </div>
 </form>
+
+<br />
 
 
 @* Browse by category *@
 <div class="mb-4 text-center">
-    <strong>Browse by Category:</strong><br />
+    @* <strong>Browse by Category</strong><br /> *@
     @foreach (var cat in categories)
     {
         var label = cat
@@ -137,7 +139,7 @@
                         <form method="post" asp-controller="Books" asp-action="Bookmark" style="display:inline-block; margin-bottom: 5px;">
                             <input type="hidden" name="bookId" value="@book.Id" />
                             <button type="submit" class="btn btn-outline-warning btn-sm" title="Bookmark">
-                                📌 Bookmark
+                                🔖 Bookmark
                             </button>
                         </form>
 
@@ -146,7 +148,7 @@
                             <form method="post" asp-controller="Cart" asp-action="AddToCart" style="display:inline-block">
                                 <input type="hidden" name="bookId" value="@book.Id" />
                                 <button type="submit" class="btn btn-outline-success btn-sm" title="Add to Cart">
-                                    🛒 Buy
+                                    🛒 Add to Cart
                                 </button>
                             </form>
                         }

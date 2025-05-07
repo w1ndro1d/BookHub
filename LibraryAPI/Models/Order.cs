@@ -4,7 +4,7 @@
     {
         public int Id { get; set; }
         public int MemberId { get; set; }
-        public required Member Member { get; set; }
+        public Member Member { get; set; }
         public DateTime OrderDate { get; set; } = DateTime.UtcNow;
         public bool IsCancelled { get; set; } = false;
         public bool IsClaimed { get; set; } = false;

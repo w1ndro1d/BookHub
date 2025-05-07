@@ -1,0 +1,10 @@
+﻿@model LibraryWeb.Models.OrderConfirmationViewModel
+
+<h2>✅ Order Placed Successfully!</h2>
+
+<p><strong>Order ID:</strong> @Model.Id</p>
+<p><strong>Claim Code:</strong> <span class="text-success">@Model.ClaimCode</span></p>
+<p><strong>Total:</strong> $@Model.TotalAmount</p>
+<p><strong>Date:</strong> @Model.OrderDate.ToShortDateString()</p>
+
+<p>Please bring your <strong>Membership ID</strong> and this <strong>Claim Code</strong> to the store for pickup.</p>

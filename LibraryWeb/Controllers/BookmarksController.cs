@@ -1,0 +1,35 @@
+﻿using LibraryWeb.Models;
+using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Mvc;
+using System.Net.Http.Headers;
+
+namespace LibraryWeb.Controllers
+{
+    [Authorize]
+    public class BookmarksController : Controller
+    {
+        private readonly IHttpClientFactory _httpClientFactory;
+
+        public BookmarksController(IHttpClientFactory httpClientFactory)
+        {
+            _httpClientFactory = httpClientFactory;
+        }
+
+        public async Task<IActionResult> Index()
+        {
+            var token = HttpContext.Session.GetString("JWTToken");
+            if (string.IsNullOrEmpty(token))
+            {
+                TempData["Error"] = "You must be logged in to view bookmarks.";
+                return RedirectToAction("Login", "Account");
+            }
+
+            var client = _httpClientFactory.CreateClient("API");
+            client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", token);
+
+            var bookmarks = await client.GetFromJsonAsync<List<Book>>("api/bookmark");
+
+            return View(bookmarks);
+        }
+    }
+}

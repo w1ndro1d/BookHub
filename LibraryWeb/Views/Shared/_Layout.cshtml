@@ -28,7 +28,8 @@
     <header>
         <nav class="navbar navbar-expand-sm navbar-toggleable-sm navbar-light bg-white border-bottom box-shadow mb-3">
             <div class="container-fluid">
-                <a class="navbar-brand" asp-area="" asp-controller="Home" asp-action="Index">LibraryWeb</a>
+                <a class="navbar-brand" asp-area="" asp-controller="Home" asp-action="Index">Home</a>
+                <a class="navbar-brand" href="@Url.Action("BrowseBooks", "Home")">📚 Browse Books</a>
                 <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target=".navbar-collapse" aria-controls="navbarSupportedContent"
                         aria-expanded="false" aria-label="Toggle navigation">
                     <span class="navbar-toggler-icon"></span>
@@ -40,13 +41,20 @@
                         </li> *@
                     </ul>
 
-                    <!-- Login / Logout buttons -->
+                    <!-- Login, Logout and Bookmark buttons -->
                     <ul class="navbar-nav">
                         @if (!string.IsNullOrEmpty(token) || User.Identity.IsAuthenticated)
                         {
-                            <li class="nav-item">
-                                <span class="nav-link">@loggedInUserEmail</span>
+                            <li class="nav-item dropdown">
+                                <a class="nav-link dropdown-toggle" href="#" id="navbarDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+                                    @loggedInUserEmail
+                                </a>
+                                <ul class="dropdown-menu" aria-labelledby="navbarDropdown">
+                                    <li><a class="dropdown-item" asp-controller="Bookmarks" asp-action="Index">🔖 My Bookmarks</a></li>
+                                    <li><a class="dropdown-item" asp-controller="Cart" asp-action="Index">🛒 My Cart</a></li>
+                                </ul>
                             </li>
+
                             <li class="nav-item">
                                 <form asp-controller="Account" asp-action="Logout" method="post" style="display:inline;">
                                     <button type="submit" class="btn btn-link nav-link">Logout</button>
@@ -63,6 +71,7 @@
                             </li>
                         }
                     </ul>
+
                 </div>
             </div>
         </nav>

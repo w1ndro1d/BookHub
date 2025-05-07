@@ -1,0 +1,45 @@
+﻿@model List<LibraryWeb.Models.CartItemViewModel>
+
+<h2>Pending Items in Cart</h2>
+
+@if (!Model.Any())
+{
+    <p class="text-muted">Your cart is empty.</p>
+}
+else
+{
+    <table class="table">
+        <thead>
+            <tr>
+                <th>Book</th>
+                <th>Author</th>
+                <th>Qty</th>
+                <th>Price</th>
+                <th>Subtotal</th>
+                <th></th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var item in Model)
+            {
+                <tr>
+                    <td>@item.Title</td>
+                    <td>@item.Author</td>
+                    <td>@item.Quantity</td>
+                    <td>$@item.Price</td>
+                    <td>$@(item.Price * item.Quantity)</td>
+                    <td>
+                        <form method="post" asp-action="RemoveFromCart">
+                            <input type="hidden" name="bookId" value="@item.BookId" />
+                            <button class="btn btn-danger btn-sm">Remove</button>
+                        </form>
+                    </td>
+                </tr>
+            }
+        </tbody>
+    </table>
+
+    <form method="post" asp-action="PlaceOrder">
+        <button class="btn btn-success">Checkout</button>
+    </form>
+}
