@@ -27,9 +27,11 @@ namespace LibraryWeb.Controllers
             var client = _httpClientFactory.CreateClient("API");
             client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", token);
 
-            var cartItems = await client.GetFromJsonAsync<List<CartItemViewModel>>("api/cart");
+            //var cartItems = await client.GetFromJsonAsync<List<CartItemViewModel>>("api/cart");
+            var cartSummary = await client.GetFromJsonAsync<CartSummaryViewModel>("api/cart");
 
-            return View(cartItems ?? new List<CartItemViewModel>());
+            //return View(cartItems ?? new List<CartItemViewModel>());
+            return View(cartSummary ?? new CartSummaryViewModel());
         }
 
         [HttpPost]

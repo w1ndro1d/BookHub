@@ -18,66 +18,116 @@
                 msg.style.opacity = '0';
                 setTimeout(() => msg.remove(), 500);
             }
-        }, 2000);
+        }, 3000);
     </script>
 }
 
 <div class="container">
     @* <h2 class="my-4 text-center">📚 Explore Our Library Collection</h2> *@
 
-    <!-- Filter Section -->
-    <div class="card p-4 mb-4">
-        <form method="post" asp-action="Index">
-            <div class="row g-3">
-                <div class="col-md-4">
-                    <input type="text" name="searchQuery" placeholder="Search by title, ISBN, or description" class="form-control" />
-                </div>
-                <div class="col-md-2">
-                    <select name="filterAuthor" class="form-select">
-                        <option value="">All Authors</option>
-                        @foreach (var author in Model.Books.Select(b => b.Author).Distinct())
-                        {
-                            <option value="@author">@author</option>
-                        }
-                    </select>
-                </div>
-                <div class="col-md-2">
-                    <select name="filterGenre" class="form-select">
-                        <option value="">All Genres</option>
-                        @foreach (var genre in Model.Books.Select(b => b.Genre).Distinct())
-                        {
-                            <option value="@genre">@genre</option>
-                        }
-                    </select>
-                </div>
-                <div class="col-md-2">
-                    <input type="number" name="filterPriceMin" placeholder="Min Price" class="form-control" />
-                </div>
-                <div class="col-md-2">
-                    <input type="number" name="filterPriceMax" placeholder="Max Price" class="form-control" />
-                </div>
-                <div class="col-md-3">
-                    <select name="filterAvailability" class="form-select">
-                        <option value="">All Availability</option>
-                        <option value=1>Available</option>
-                        <option value=0>Out of Stock</option>
-                        <option value=2>Library-Only</option>
-                    </select>
-                </div>
-                <div class="col-md-3">
-                    <select name="sortOrder" class="form-select">
-                        <option value="title">Sort by Title</option>
-                        <option value="publicationDate">Sort by Publication Date</option>
-                        <option value="price">Sort by Price</option>
-                        <option value="popularity">Sort by Popularity</option>
-                    </select>
-                </div>
-                <div class="col-md-3">
-                    <button type="submit" class="btn btn-primary w-100">Apply Filters</button>
-                </div>
-            </div>
-        </form>
-    </div>
+    <!-- Custom Filter Section -->
+    <style>
+        .alert {
+            background-color: #dfe6e9;
+            color: #2d3436;
+            padding: 12px;
+            margin-bottom: 20px;
+            border-radius: 8px;
+            font-size: 14px;
+            text-align: center;
+        }
+
+        .filter-form {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+            gap: 1rem;
+            background: #f4f4f4;
+            padding: 1.5rem;
+            border-radius: 10px;
+            margin-bottom: 2rem;
+        }
+
+            .filter-form input,
+            .filter-form select {
+                padding: 0.5rem;
+                border: 1px solid #ccc;
+                border-radius: 6px;
+                font-size: 0.95rem;
+                width: 100%;
+            }
+
+            .filter-form button {
+                padding: 0.5rem 1rem;
+                border-radius: 6px;
+                font-size: 0.95rem;
+                background-color: #0077cc;
+                color: white;
+                border: none;
+                width: auto;
+                max-width: 200px;
+                cursor: pointer;
+                transition: background 0.3s ease;
+            }
+
+                .filter-form button:hover {
+                    background-color: #005fa3;
+                }
+
+        .form-section-title {
+            grid-column: 1 / -1;
+            font-size: 1.1rem;
+            font-weight: bold;
+            margin-bottom: 0.5rem;
+        }
+    </style>
+
+
+    <form method="post" asp-action="Index" class="filter-form">
+        <!-- Text Inputs -->
+        <div class="form-section-title">Search</div>
+        <input type="text" name="searchQuery" placeholder="Title, ISBN, or description" />
+
+        <input type="number" name="filterPriceMin" placeholder="Min Price" />
+        <input type="number" name="filterPriceMax" placeholder="Max Price" />
+
+        <!-- Dropdowns -->
+        <div class="form-section-title">Apply Filters</div>
+        <select name="filterAuthor">
+            <option value="">All Authors</option>
+            @foreach (var author in Model.Books.Select(b => b.Author).Distinct())
+            {
+                <option value="@author">@author</option>
+            }
+        </select>
+
+        <select name="filterGenre">
+            <option value="">All Genres</option>
+            @foreach (var genre in Model.Books.Select(b => b.Genre).Distinct())
+            {
+                <option value="@genre">@genre</option>
+            }
+        </select>
+
+        <select name="filterAvailability">
+            <option value="">All Availability</option>
+            <option value="1">Available</option>
+            <option value="0">Out of Stock</option>
+            <option value="2">Library-Only</option>
+        </select>
+
+        <select name="sortOrder">
+            <option value="title">Sort by Title</option>
+            <option value="publicationDate">Sort by Publication Date</option>
+            <option value="price">Sort by Price</option>
+            <option value="popularity">Sort by Popularity</option>
+        </select>
+
+        <!-- Submit Button -->
+        <div style="grid-column: 1 / -1;">
+            <button type="submit">Toggle Filters</button>
+        </div>
+    </form>
+
 
     <!-- Category Tabs -->
     <div class="text-center mb-4">

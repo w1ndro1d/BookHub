@@ -8,9 +8,37 @@
 
 <p><strong>Order ID:</strong> @Model.Id</p>
 <p><strong>Claim Code:</strong> <span class="text-success">@Model.ClaimCode</span></p>
-<p><strong>Total:</strong> $@Model.TotalAmount</p>
+
+@{
+    var subTotal = Model.SubTotalBeforeDiscount;
+    var discount = Model.DiscountAmount;
+    var total = Model.TotalAmount;
+}
+
+@if (Model.HasDiscount)
+{
+    <p><strong>Subtotal:</strong> $@subTotal.ToString("0.00")</p>
+    <p><strong>Discount:</strong> -$@discount.ToString("0.00")</p>
+
+    @if (Model.AppliedDiscount.Any())
+    {
+        <ul>
+            @foreach (var label in Model.AppliedDiscount)
+            {
+                <li>@label</li>
+            }
+        </ul>
+    }
+
+    <p><strong>Total Payable:</strong> $@total.ToString("0.00")</p>
+}
+else
+{
+    <p><strong>Total:</strong> $@total.ToString("0.00")</p>
+}
+
 <p><strong>Date:</strong> @Model.OrderDate</p>
 <hr />
 <p>Please bring your <strong>Membership ID</strong> and <strong>Claim Code</strong> to the store when picking up your order.</p>
 <p><em>A confirmation email with your claim code and order bill has also been sent to your registered email address.</em></p>
-<hr/>
+<hr />

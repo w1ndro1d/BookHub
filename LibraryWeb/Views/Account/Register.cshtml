@@ -1,10 +1,104 @@
 ﻿@model LibraryWeb.Models.RegisterModel
 
-<h2>Register</h2>
+@{
+    ViewData["Title"] = "Sign Up";
+}
 
-<form asp-action="Register" method="post">
-    <input asp-for="FullName" placeholder="Full Name" class="form-control" />
-    <input asp-for="Email" placeholder="Email" class="form-control" />
-    <input asp-for="Password" placeholder="Password" type="password" class="form-control" />
-    <button type="submit" class="btn btn-primary">Register</button>
-</form>
+<style>
+    .form-wrapper {
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        padding: 40px 20px;
+    }
+
+    .register-card {
+        background-color: #ffffff;
+        padding: 30px 40px;
+        border-radius: 16px;
+        box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+        width: 100%;
+        max-width: 400px;
+    }
+
+    h2 {
+        margin-bottom: 24px;
+        font-size: 26px;
+        text-align: center;
+        color: #2d3436;
+    }
+
+    input[type="text"],
+    input[type="email"],
+    input[type="password"] {
+        width: 100%;
+        padding: 12px 16px;
+        margin-bottom: 16px;
+        border: 1px solid #dcdde1;
+        border-radius: 8px;
+        font-size: 16px;
+        transition: border-color 0.3s ease;
+    }
+
+    input:focus {
+        border-color: #0984e3;
+        outline: none;
+    }
+
+    button {
+        width: 100%;
+        padding: 12px;
+        background-color: #0984e3;
+        border: none;
+        border-radius: 8px;
+        color: white;
+        font-size: 16px;
+        cursor: pointer;
+        transition: background-color 0.3s ease;
+    }
+
+    button:hover {
+        background-color: #74b9ff;
+    }
+
+    .alert {
+        background-color: #dfe6e9;
+        color: #2d3436;
+        padding: 12px;
+        margin-bottom: 20px;
+        border-radius: 8px;
+        font-size: 14px;
+        text-align: center;
+    }
+</style>
+
+<div class="form-wrapper">
+    <div class="register-card">
+        <h2>Sign Up</h2>
+
+        @if (TempData["NotificationMessage"] != null)
+        {
+            <div class="alert" id="notificationMessage">
+                @TempData["NotificationMessage"]
+            </div>
+
+            <script>
+                setTimeout(() => {
+                    const msg = document.getElementById('notificationMessage');
+                    if (msg) {
+                        msg.style.transition = 'opacity 0.5s ease-out';
+                        msg.style.opacity = '0';
+                        setTimeout(() => msg.remove(), 500);
+                    }
+                }, 10000);
+            </script>
+        }
+
+        <form asp-action="Register" method="post">
+            <input asp-for="FullName" type="text" placeholder="Full Name" required/>
+            <input asp-for="Email" type="email" placeholder="Email" required/>
+            <input asp-for="Password" type="password" placeholder="Password" required/>
+            <button type="submit">Register</button>
+        </form>
+    </div>
+</div>

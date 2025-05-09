@@ -4,6 +4,18 @@
     ViewData["Title"] = "My Bookmarks";
 }
 
+<style>
+    .alert {
+        background-color: #dfe6e9;
+        color: #2d3436;
+        padding: 12px;
+        margin-bottom: 20px;
+        border-radius: 8px;
+        font-size: 14px;
+        text-align: center;
+    }
+</style>
+
 <h2>🔖 Bookmarked Listings</h2>
 <p></p>
 
@@ -22,7 +34,7 @@
                 msg.style.opacity = '0';
                 setTimeout(() => msg.remove(), 500); // remove from DOM after fade
             }
-        }, 2000);
+        }, 5000);
     </script>
 }
 
@@ -40,7 +52,7 @@ else
                 <th>Genre</th>
                 <th>Price</th>
                 <th>Availability</th>
-                <th>Action</th>
+                <th>Actions</th>
             </tr>
         </thead>
         <tbody>
@@ -53,15 +65,22 @@ else
                     <td>$@book.Price</td>
                     <td>@(book.InStock == 1 ? "Yes" : book.InStock == 0 ? "Out of Stock" : "Library-Only")</td>
                     <td>
-                        @if (book.InStock == 1)
-                        {
-                            <form method="post" asp-controller="Cart" asp-action="AddToCart" style="display:inline-block">
+                        <div class="d-flex flex-wrap gap-1">
+                            @if (book.InStock == 1)
+                            {
+                            
+                                    <form method="post" asp-controller="Cart" asp-action="AddToCart" style="display:inline-block">
+                                        <input type="hidden" name="bookId" value="@book.Id" />
+                                        <button type="submit" class="btn btn-outline-success btn-sm" title="Add to Cart">
+                                            🛒 Add to Cart
+                                        </button>
+                                    </form>
+                            }
+                            <form method="post" asp-action="RemoveFromBookmark">
                                 <input type="hidden" name="bookId" value="@book.Id" />
-                                <button type="submit" class="btn btn-outline-success btn-sm" title="Add to Cart">
-                                    🛒 Add to Cart
-                                </button>
+                                <button class="btn btn-danger btn-sm">Remove</button>
                             </form>
-                        }
+                        </div>
                     </td>
                 </tr>
             }

@@ -77,18 +77,19 @@ namespace LibraryAPI.Controllers
             var member = await GetLoggedInMemberAsync();
 
             if (member?.Cart == null || !member.Cart.Items.Any())
-                return Ok(new List<object>());
+                return Ok(new { Items = new List<object>(), Subtotal = 0, Discount = 0, Total = 0 });
 
-            var result = member.Cart.Items.Select(ci => new
-            {
-                ci.BookId,
-                ci.Book.Title,
-                ci.Book.Author,
-                ci.Book.Price,
-                ci.Quantity
-            });
+            //var result = member.Cart.Items.Select(ci => new
+            //{
+            //    ci.BookId,
+            //    ci.Book.Title,
+            //    ci.Book.Author,
+            //    ci.Book.Price,
+            //    ci.Quantity
+            //});
 
-            return Ok(result);
+            var summary = CalculateCartSummary(member.Cart, member.Id);
+            return Ok(summary);
         }
 
         [HttpDelete("remove/{bookId}")]
@@ -106,6 +107,53 @@ namespace LibraryAPI.Controllers
             await _dbContext.SaveChangesAsync();
 
             return Ok("Removed from cart");
+        }
+
+        //for discount on 5 or more orders at once(5 or more orders at a time in cart)
+        private object CalculateCartSummary(Cart cart, int memberId)
+        {
+            var items = cart.Items.Select(ci => new
+            {
+                ci.BookId,
+                ci.Book.Title,
+                ci.Book.Author,
+                ci.Book.Price,
+                ci.Quantity,
+                TotalPrice = ci.Book.Price * ci.Quantity
+            }).ToList();
+
+            var subtotal = items.Sum(i => i.TotalPrice);
+            var totalQuantity = items.Sum(i => i.Quantity);
+
+            decimal discountAmount = 0;
+            var discounts = new List<string>();
+
+            // Loyalty Discount (every 10th order)
+            var orderCount = _dbContext.Orders.Count(o => o.MemberId == memberId) + 1;
+            if (orderCount > 0 && orderCount % 10 == 0)
+            {
+                discountAmount += subtotal * 0.10m;
+                discounts.Add("10% Loyalty Discount (only available after 10 successful orders)");
+            }
+
+            // Bulk purchase discount(5%)
+            if (totalQuantity >= 5)
+            {
+                discountAmount += subtotal * 0.05m;
+                discounts.Add("5% Bulk Purchase Discount");
+            }
+
+            //total here is already subtracting discount amount, so if we are to display this in our razor page, we should add discount amount again to get total
+            var total = subtotal - discountAmount;
+
+            return new
+            {
+                Items = items,
+                Subtotal = subtotal,
+                Discount = discountAmount,
+                Total = total,
+                AppliedDiscount = discounts
+            };
         }
     }
 }

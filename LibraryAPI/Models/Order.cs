@@ -10,6 +10,7 @@
         public bool IsClaimed { get; set; } = false;
         public required string ClaimCode { get; set; }
         public decimal TotalAmount { get; set; }
+        public decimal DiscountAmount { get; set; }
         public required ICollection<OrderItem> OrderItems { get; set; }
     }
 }

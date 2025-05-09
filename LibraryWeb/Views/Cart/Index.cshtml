@@ -1,8 +1,20 @@
-﻿@model List<LibraryWeb.Models.CartItemViewModel>
+﻿@model LibraryWeb.Models.CartSummaryViewModel
 
 @{
     ViewData["Title"] = "My Cart";
 }
+
+<style>
+    .alert {
+        background-color: #dfe6e9;
+        color: #2d3436;
+        padding: 12px;
+        margin-bottom: 20px;
+        border-radius: 8px;
+        font-size: 14px;
+        text-align: center;
+    }
+</style>
 
 <h2>🛒 Pending Items in Cart</h2>
 <p></p>
@@ -22,11 +34,11 @@
                 msg.style.opacity = '0';
                 setTimeout(() => msg.remove(), 500); // remove from DOM after fade
             }
-        }, 2000);
+        }, 3000);
     </script>
 }
 
-@if (!Model.Any())
+@if (Model.Items == null || !Model.Items.Any())
 {
     <p class="text-muted">Your cart is empty.</p>
 }
@@ -40,11 +52,11 @@ else
                 <th>Qty</th>
                 <th>Price</th>
                 <th>Subtotal</th>
-                <th></th>
+                <th>Actions</th>
             </tr>
         </thead>
         <tbody>
-            @foreach (var item in Model)
+            @foreach (var item in Model.Items)
             {
                 <tr>
                     <td>@item.Title</td>
@@ -62,6 +74,33 @@ else
             }
         </tbody>
     </table>
+
+    @* show discounted rate if applicable *@
+    <div class="text-start mt-3">
+        <p><strong>Subtotal:</strong> $@Model.Subtotal.ToString("0.00")</p>
+
+        @if (Model.Discount > 0)
+        {
+            <p><strong>Discount:</strong> -$@Model.Discount.ToString("0.00")</p>
+
+            @if (Model.AppliedDiscount.Any())
+            {
+                <ul>
+                    @foreach (var discountLabel in Model.AppliedDiscount)
+                    {
+                        <li class="text-muted">@discountLabel</li>
+                    }
+                </ul>
+            }
+
+            <p><strong>Total Payable Amount:</strong> $@Model.Total.ToString("0.00")</p>
+        }
+        else
+        {
+            <p><strong>Total:</strong> $@Model.Total.ToString("0.00")</p>
+        }
+    </div>
+
 
     <form method="post" asp-action="PlaceOrder">
         <button class="btn btn-success">Proceed to Confirmation</button>

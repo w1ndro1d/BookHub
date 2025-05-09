@@ -29,10 +29,11 @@ namespace LibraryWeb.Controllers
             var response = await client.PostAsJsonAsync("api/Authentication/register", model);
             if (response.IsSuccessStatusCode)
             {
+                TempData["NotificationMessage"] = "Successfully registered!";
                 return RedirectToAction("Login");
             }
 
-            ModelState.AddModelError(string.Empty, "Register failed!");
+            TempData["NotificationMessage"] = "Registration failed! If you're already registered, please use the login page.";
             return View(model);
         }
 
@@ -68,12 +69,13 @@ namespace LibraryWeb.Controllers
                 if (memberId != null)
                 {
                     HttpContext.Session.SetInt32("MemberId", int.Parse(memberId));
+                    TempData["NotificationMessage"] = "Successfully logged in! Redirecting to listings page...";
                 }
 
                 return RedirectToAction("Index", "Books");
             }
 
-            ModelState.AddModelError(string.Empty, "Login failed!");
+            TempData["NotificationMessage"] = "Login failed! Please try again.";
             return View(model);
         }
 

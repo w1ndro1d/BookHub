@@ -31,5 +31,29 @@ namespace LibraryWeb.Controllers
 
             return View(bookmarks);
         }
+
+        [HttpPost]
+        public async Task<IActionResult> RemoveFromBookmark(int bookId)
+        {
+            var token = HttpContext.Session.GetString("JWTToken");
+            if (string.IsNullOrEmpty(token))
+                return RedirectToAction("Login", "Account");
+
+            var client = _httpClientFactory.CreateClient("API");
+            client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", token);
+
+            var response = await client.DeleteAsync($"api/bookmark/{bookId}");
+            if (response.IsSuccessStatusCode)
+            {
+                TempData["NotificationMessage"] = "Bookmark removed!";
+            }
+            else
+            {
+                var error = await response.Content.ReadAsStringAsync();
+                TempData["NotificationMessage"] = $"Failed to remove from bookmark list! {error}";
+            }
+
+            return RedirectToAction("Index");
+        }
     }
 }
