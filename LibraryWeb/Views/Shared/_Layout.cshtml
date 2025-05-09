@@ -4,6 +4,7 @@
 @{
     var token = Context.Session.GetString("JWTToken");
     string loggedInUserEmail = null;
+    string loggedInUserFullName = null;
 
     if (!string.IsNullOrEmpty(token))
     {
@@ -11,6 +12,9 @@
         var jwtToken = handler.ReadJwtToken(token);
         loggedInUserEmail = jwtToken.Claims.FirstOrDefault(c => c.Type == ClaimTypes.Email)?.Value
                          ?? jwtToken.Claims.FirstOrDefault(c => c.Type == "email")?.Value;
+                         
+        loggedInUserFullName = jwtToken.Claims.FirstOrDefault(c => c.Type == ClaimTypes.Name)?.Value
+        ?? jwtToken.Claims.FirstOrDefault(c => c.Type == "fullName")?.Value;
     }
 }
 
@@ -47,11 +51,12 @@
                         {
                             <li class="nav-item dropdown">
                                 <a class="nav-link dropdown-toggle" href="#" id="navbarDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
-                                    @loggedInUserEmail
+                                    @loggedInUserFullName
                                 </a>
                                 <ul class="dropdown-menu" aria-labelledby="navbarDropdown">
                                     <li><a class="dropdown-item" asp-controller="Bookmarks" asp-action="Index">🔖 My Bookmarks</a></li>
                                     <li><a class="dropdown-item" asp-controller="Cart" asp-action="Index">🛒 My Cart</a></li>
+                                    <li><a class="dropdown-item" asp-controller="Orders" asp-action="Index">📦 My Orders</a></li>
                                 </ul>
                             </li>
 

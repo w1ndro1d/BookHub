@@ -4,13 +4,26 @@
     ViewData["Title"] = "My Bookmarks";
 }
 
-<h2>My Bookmarked Listings</h2>
+<h2>🔖 Bookmarked Listings</h2>
+<p></p>
 
-@if (TempData["BookmarkMessage"] != null)
+@if (TempData["NotificationMessage"] != null)
 {
-    <div class="alert alert-info">
-        @TempData["BookmarkMessage"]
+    <div class="alert alert-info" id="notificationMessage">
+        @TempData["NotificationMessage"]
     </div>
+
+    @* js to automatically fade message after 2 seconds *@
+    <script>
+        setTimeout(() => {
+            const msg = document.getElementById('notificationMessage');
+            if (msg) {
+                msg.style.transition = 'opacity 0.5s ease-out';
+                msg.style.opacity = '0';
+                setTimeout(() => msg.remove(), 500); // remove from DOM after fade
+            }
+        }, 2000);
+    </script>
 }
 
 @if (!Model.Any())

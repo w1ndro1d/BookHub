@@ -38,7 +38,7 @@ namespace LibraryAPI.Controllers
             var order = new Order
             {
                 MemberId = memberId,
-                OrderDate = DateTime.UtcNow,
+                OrderDate = DateTime.Now,
                 ClaimCode = Guid.NewGuid().ToString().Substring(0, 8).ToUpper(),
                 OrderItems = new List<OrderItem>(),
                 TotalAmount = 0
@@ -93,6 +93,25 @@ namespace LibraryAPI.Controllers
                     i.UnitPrice
                 })
             }));
+        }
+
+        [HttpDelete("{orderId}")]
+        public async Task<IActionResult> RemoveOrder(int orderId)
+        {
+            var memberId = GetMemberId();
+
+            // find the order by its ID and ensure it belongs to the currently logged-in user
+            var order = await _dbContext.Orders
+                .Include(o => o.OrderItems)
+                .FirstOrDefaultAsync(o => o.Id == orderId && o.MemberId == memberId);
+
+            if (order == null)
+                return NotFound("Order not found or you do not have permission to delete this order.");
+
+            _dbContext.Orders.Remove(order);
+            await _dbContext.SaveChangesAsync();
+
+            return Ok(new { message = "Order successfully removed." });
         }
     }
 }

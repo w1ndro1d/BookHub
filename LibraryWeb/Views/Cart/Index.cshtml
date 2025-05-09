@@ -1,6 +1,26 @@
 ﻿@model List<LibraryWeb.Models.CartItemViewModel>
 
-<h2>Pending Items in Cart</h2>
+<h2>🛒 Pending Items in Cart</h2>
+<p></p>
+
+@if (TempData["NotificationMessage"] != null)
+{
+    <div class="alert alert-info" id="notificationMessage">
+        @TempData["NotificationMessage"]
+    </div>
+
+    @* js to automatically fade message after 2 seconds *@
+    <script>
+        setTimeout(() => {
+            const msg = document.getElementById('notificationMessage');
+            if (msg) {
+                msg.style.transition = 'opacity 0.5s ease-out';
+                msg.style.opacity = '0';
+                setTimeout(() => msg.remove(), 500); // remove from DOM after fade
+            }
+        }, 2000);
+    </script>
+}
 
 @if (!Model.Any())
 {
@@ -40,6 +60,6 @@ else
     </table>
 
     <form method="post" asp-action="PlaceOrder">
-        <button class="btn btn-success">Checkout</button>
+        <button class="btn btn-success">Proceed to Confirmation</button>
     </form>
 }

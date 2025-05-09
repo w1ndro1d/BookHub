@@ -148,7 +148,7 @@ namespace LibraryWeb.Controllers
 
             if (string.IsNullOrEmpty(token))
             {
-                TempData["BookmarkMessage"] = "You must be logged in to bookmark books.";
+                TempData["NotificationMessage"] = "You must be logged in to bookmark books.";
                 return RedirectToAction("Index");
             }
 
@@ -162,12 +162,12 @@ namespace LibraryWeb.Controllers
 
             if (response.IsSuccessStatusCode)
             {
-                TempData["BookmarkMessage"] = "Bookmark successful!";
+                TempData["NotificationMessage"] = "Bookmark successful!";
             }
             else
             {
                 var error = await response.Content.ReadAsStringAsync();
-                TempData["BookmarkMessage"] = $"Failed to bookmark: {error}";
+                TempData["NotificationMessage"] = $"Failed to bookmark: {error}";
             }
 
             return RedirectToAction("Index");

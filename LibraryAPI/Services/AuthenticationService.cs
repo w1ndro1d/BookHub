@@ -59,6 +59,7 @@ namespace LibraryAPI.Services
             {
                 new Claim(JwtRegisteredClaimNames.Sub, member.Id.ToString()),
                 new Claim(JwtRegisteredClaimNames.Email, member.Email),
+                new Claim(ClaimTypes.Name, member.FullName),
                 new Claim("role", "Member")
             };
 

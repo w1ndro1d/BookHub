@@ -60,7 +60,7 @@ namespace LibraryWeb.Controllers
             var token = HttpContext.Session.GetString("JWTToken");
             if (string.IsNullOrEmpty(token))
             {
-                TempData["BookmarkMessage"] = "Please log in to add items to your cart.";
+                TempData["NotificationMessage"] = "Please log in to add items to your cart.";
                 return RedirectToAction("Index", "Books");
             }
 
@@ -71,15 +71,15 @@ namespace LibraryWeb.Controllers
 
             if (response.IsSuccessStatusCode)
             {
-                TempData["BookmarkMessage"] = "Book added to cart successfully! 🛒";
+                TempData["NotificationMessage"] = "Book added to cart successfully! 🛒";
             }
             else
             {
                 var error = await response.Content.ReadAsStringAsync();
-                TempData["BookmarkMessage"] = $"Failed to add to cart: {error}";
+                TempData["NotificationMessage"] = $"Failed to add to cart: {error}";
             }
 
-            //redirect to calling page and display toast message inside each page
+            //redirect to calling page and display toast message inside each page, since adding to cart is currently possible from two pages(bookmarks page and book listings page)
             return Redirect(Request.Headers["Referer"].ToString());
         }
 
@@ -93,7 +93,16 @@ namespace LibraryWeb.Controllers
             var client = _httpClientFactory.CreateClient("API");
             client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", token);
 
-            await client.DeleteAsync($"api/cart/remove/{bookId}");
+            var response = await client.DeleteAsync($"api/cart/remove/{bookId}");
+            if (response.IsSuccessStatusCode)
+            {
+                TempData["NotificationMessage"] = "Book removed from cart!";
+            }
+            else
+            {
+                var error = await response.Content.ReadAsStringAsync();
+                TempData["NotificationMessage"] = $"Failed to remove from cart: {error}";
+            }
 
             return RedirectToAction("Index");
         }
