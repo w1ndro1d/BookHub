@@ -2,6 +2,51 @@
     ViewData["Title"] = "Home";
 }
 
-<h1>Welcome to the Book Library Store!</h1>
+<div class="container py-5">
+    <div class="text-center mb-5">
+        <h1 class="display-4">Welcome to the Book Library Store</h1>
+        <p class="lead text-muted">
+            Explore, bookmark, and order from our private collection of books — now available for online browsing and in-store pickup!
+        </p>
+    </div>
 
-@* <a href="@Url.Action("BrowseBooks", "Home")">Browse Books</a> *@
+    <div class="row text-center mb-4">
+        <div class="col-md-4">
+            <h4>🔍 Browse & Filter</h4>
+            <p>Search by title, author, ISBN, genre, publisher and more. Filter by availability, price, and ratings.</p>
+        </div>
+        <div class="col-md-4">
+            <h4>💡 Place & Pick Up Orders</h4>
+            <p>Add books to your cart and place cancelable orders. You'll receive a confirmation email with a claim code for in-store pickup.</p>
+        </div>
+        <div class="col-md-4">
+            <h4>👤 Member Benefits</h4>
+            <p>Get a 5% discount when you order 5+ books. After 10 successful orders, enjoy a stackable 10% off your next purchase!</p>
+        </div>
+    </div>
+
+    <hr class="my-5" />
+
+    <div class="row text-center mb-4">
+        <div class="col-md-3">
+            <h5>🔥 Bestsellers</h5>
+            <p>Our most popular picks by members.</p>
+        </div>
+        <div class="col-md-3">
+            <h5>🏆 Award Winners</h5>
+            <p>Critically acclaimed and recognized titles.</p>
+        </div>
+        <div class="col-md-3">
+            <h5>📦 New Arrivals</h5>
+            <p>Freshly added books - updated monthly.</p>
+        </div>
+        <div class="col-md-3">
+            <h5>⏳ Coming Soon</h5>
+            <p>Previews of books arriving in our catalog.</p>
+        </div>
+    </div>
+
+    <div class="text-center mt-5">
+        <a href="@Url.Action("BrowseBooks", "Home")" class="btn btn-primary btn-lg px-5">Start Exploring</a>
+    </div>
+</div>

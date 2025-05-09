@@ -50,7 +50,9 @@ namespace LibraryWeb.Controllers
                 return View("Confirmation", orderResult);
             }
 
-            TempData["Error"] = "Failed to place order.";
+            var error = await response.Content.ReadAsStringAsync();
+            TempData["NotificationMessage"] = $"Failed to place order. Server says {error}";
+
             return RedirectToAction("Index");
         }
 
@@ -71,7 +73,7 @@ namespace LibraryWeb.Controllers
 
             if (response.IsSuccessStatusCode)
             {
-                TempData["NotificationMessage"] = "Book added to cart successfully! 🛒";
+                TempData["NotificationMessage"] = "Book added to cart!";
             }
             else
             {

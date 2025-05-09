@@ -1,6 +1,7 @@
 ﻿using LibraryAPI.Data;
 using LibraryAPI.Models;
 using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Identity.UI.Services;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using System.Security.Claims;
@@ -13,10 +14,12 @@ namespace LibraryAPI.Controllers
     public class OrderController : ControllerBase
     {
         private readonly LibraryDbContext _dbContext;
+        private readonly IEmailSender _emailSender;
 
-        public OrderController(LibraryDbContext dbContext)
+        public OrderController(LibraryDbContext dbContext, IEmailSender emailSender)
         {
             _dbContext = dbContext;
+            _emailSender = emailSender;
         }
 
         private int GetMemberId() =>
@@ -26,6 +29,7 @@ namespace LibraryAPI.Controllers
         public async Task<IActionResult> PlaceOrder()
         {
             var memberId = GetMemberId();
+            var member = await _dbContext.Members.FirstOrDefaultAsync(m => m.Id == memberId);
 
             var cart = await _dbContext.Carts
                 .Include(c => c.Items)
@@ -57,9 +61,22 @@ namespace LibraryAPI.Controllers
             }
 
             _dbContext.Orders.Add(order);
-            _dbContext.CartItems.RemoveRange(cart.Items); // Clear cart
+            _dbContext.CartItems.RemoveRange(cart.Items); // clear cart
             await _dbContext.SaveChangesAsync();
 
+            //send out confirmation email
+            if (member != null && !string.IsNullOrEmpty(member.Email))
+            {
+                try
+                {
+                    await SendConfirmationEmail(order, member.Email);
+                }
+                catch (Exception ex)
+                {
+                    return NotFound($"Failed to send email to {member.Email}.");
+                }
+            }
+            
             return Ok(new
             {
                 order.Id,
@@ -100,7 +117,7 @@ namespace LibraryAPI.Controllers
         {
             var memberId = GetMemberId();
 
-            // find the order by its ID and ensure it belongs to the currently logged-in user
+            // find the order by its ID and check if it belongs to the currently logged-in user
             var order = await _dbContext.Orders
                 .Include(o => o.OrderItems)
                 .FirstOrDefaultAsync(o => o.Id == orderId && o.MemberId == memberId);
@@ -110,8 +127,61 @@ namespace LibraryAPI.Controllers
 
             _dbContext.Orders.Remove(order);
             await _dbContext.SaveChangesAsync();
-
+            
             return Ok(new { message = "Order successfully removed." });
+        }
+
+        private async Task SendConfirmationEmail(Order order, string recipientEmail)
+        {
+            var emailBody = $@"
+                <div style='font-family:Arial,sans-serif;max-width:600px;margin:auto;border:1px solid #ddd;border-radius:6px;overflow:hidden;'>
+                    <div style='background:#f8f9fa;padding:16px;font-size:16px;border-bottom:1px solid #ccc;'>
+                        <strong>Order #{order.Id}</strong> |
+                        Claim Code: <span style='color:green;'>{order.ClaimCode}</span> |
+                        Total: <strong>$ {order.TotalAmount:N2}</strong> |
+                        Date: {order.OrderDate:yyyy-MM-dd HH:mm}
+                    </div>
+                    <div style='padding:16px;'>
+                        <table style='width:100%;border-collapse:collapse;font-size:14px;'>
+                            <thead>
+                                <tr>
+                                    <th style='border-bottom:1px solid #ddd;text-align:left;padding:8px;'>Book</th>
+                                    <th style='border-bottom:1px solid #ddd;text-align:left;padding:8px;'>Quantity</th>
+                                    <th style='border-bottom:1px solid #ddd;text-align:left;padding:8px;'>Unit Price</th>
+                                    <th style='border-bottom:1px solid #ddd;text-align:left;padding:8px;'>Subtotal</th>
+                                </tr>
+                            </thead>
+                        <tbody>";
+
+            foreach (var item in order.OrderItems)
+            {
+                emailBody += $@"
+                <tr>
+                    <td style='padding:8px;border-bottom:1px solid #eee;'>{item.Book.Title}</td>
+                    <td style='padding:8px;border-bottom:1px solid #eee;'>{item.Quantity}</td>
+                    <td style='padding:8px;border-bottom:1px solid #eee;'>$ {item.UnitPrice:N2}</td>
+                    <td style='padding:8px;border-bottom:1px solid #eee;'>$ {item.Quantity * item.UnitPrice:N2}</td>
+                </tr>";
+            }
+
+            emailBody += $@"
+                        </tbody>
+                    </table>
+
+                    <p style='margin-top:20px;'>Please bring your <strong>Membership ID</strong> and <strong>Claim Code</strong> to the store when picking up your order.</p>
+                    <p><em>You can print or take a screenshot of this email for easy reference during pickup.</em></p>
+                </div>
+                <div style='background:#f1f1f1;padding:12px;font-size:12px;color:#666;text-align:center;'>
+                    This is an automated message. For questions, contact support at +977 9841989988.
+                </div>
+            </div>";
+
+
+            await _emailSender.SendEmailAsync(
+                recipientEmail,
+                "Order Confirmation - Your Claim Code and Bill",
+                emailBody
+            );
         }
     }
 }

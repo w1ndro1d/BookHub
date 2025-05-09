@@ -5,211 +5,195 @@
     string[] categories = { "all", "bestsellers", "awardwinners", "newreleases", "newarrivals", "comingsoon", "deals" };
 }
 
-@* <h1>Available Books</h1> *@
-
 @if (TempData["NotificationMessage"] != null)
 {
-    <div class="alert alert-info" id="notificationMessage">
+    <div class="alert alert-info fade-out" id="notificationMessage">
         @TempData["NotificationMessage"]
     </div>
-
-    @* js to automatically fade message after 2 seconds *@
     <script>
         setTimeout(() => {
             const msg = document.getElementById('notificationMessage');
             if (msg) {
                 msg.style.transition = 'opacity 0.5s ease-out';
                 msg.style.opacity = '0';
-                setTimeout(() => msg.remove(), 500); // remove from DOM after fade
+                setTimeout(() => msg.remove(), 500);
             }
         }, 2000);
     </script>
 }
 
-<!-- Filter and Sorting Controls -->
-<form method="post" asp-action="Index">
-    <!-- Search by Title, ISBN, or Description -->
-    <input type="text" name="searchQuery" placeholder="Search by title, ISBN, or description" class="form-control" />
+<div class="container">
+    @* <h2 class="my-4 text-center">📚 Explore Our Library Collection</h2> *@
 
-    <!-- Filter by Author -->
-    <select name="filterAuthor" class="form-control">
-        <option value="">All Authors</option>
-        @foreach (var author in Model.Books.Select(b => b.Author).Distinct())
-        {
-            <option value="@author">@author</option>
-        }
-    </select>
-
-    <!-- Filter by Genre -->
-    <select name="filterGenre" class="form-control">
-        <option value="">All Genres</option>
-        @foreach (var genre in Model.Books.Select(b => b.Genre).Distinct())
-        {
-            <option value="@genre">@genre</option>
-        }
-    </select>
-
-    <!-- Filter by Price Range -->
-    <input type="number" name="filterPriceMin" placeholder="Min Price" class="form-control" />
-    <input type="number" name="filterPriceMax" placeholder="Max Price" class="form-control" />
-
-    <!-- Filter by Availability -->
-    <select name="filterAvailability" class="form-control">
-        <option value="">Availability - All</option>
-        <option value=1>Available</option>
-        <option value=0>Out of Stock</option>
-        <option value=2>Library-Only</option>
-    </select>
-
-    <!-- Sort by -->
-    <select name="sortOrder" class="form-control">
-        <option value="title">Sort by Title</option>
-        <option value="publicationDate">Sort by Publication Date</option>
-        <option value="price">Sort by Price</option>
-        <option value="popularity">Sort by Popularity</option>
-    </select>
-
-    <div class="d-flex justify-content-center">
-        <button type="submit" class="btn btn-primary">Apply Filters</button>
-    </div>
-</form>
-
-<br />
-
-
-@* Browse by category *@
-<div class="mb-4 text-center">
-    @* <strong>Browse by Category</strong><br /> *@
-    @foreach (var cat in categories)
-    {
-        var label = cat
-        .Replace("awardwinners", "Award Winners")
-        .Replace("newreleases", "New Releases")
-        .Replace("newarrivals", "New Arrivals")
-        .Replace("comingsoon", "Coming Soon")
-        .Replace("bestsellers", "Best Sellers")
-        .Replace("deals", "Deals")
-        .Replace("all", "All");
-
-        <form method="post" asp-action="Index" class="d-inline">
-            <input type="hidden" name="category" value="@cat" />
-            <input type="hidden" name="searchQuery" value="@Model.SearchQuery" />
-            <input type="hidden" name="filterAuthor" value="@Model.FilterAuthor" />
-            <input type="hidden" name="filterGenre" value="@Model.FilterGenre" />
-            <input type="hidden" name="filterPriceMin" value="@Model.FilterPriceMin" />
-            <input type="hidden" name="filterPriceMax" value="@Model.FilterPriceMax" />
-            <input type="hidden" name="sortOrder" value="@Model.SortOrder" />
-            <input type="hidden" name="filterAvailability" value="@Model.FilterAvailability" />
-            <input type="hidden" name="pageSize" value="@Model.PageSize" />
-            <button type="submit" class="btn btn-outline-secondary m-1 @(Model.Category?.Equals(cat, StringComparison.OrdinalIgnoreCase) == true ? "active" : "")">
-                @label
-            </button>
-        </form>
-    }
-</div>
-
-
-<!-- Book Table -->
-<table class="table">
-    <thead>
-        <tr>
-            <th>Title</th>
-            <th>Author</th>
-            <th>Genre</th>
-            <th>Price</th>
-            <th>Available</th>
-            <th>Rating</th>
-            <th>Actions</th>
-        </tr>
-    </thead>
-    <tbody>
-        @foreach (var book in Model.Books)
-        {
-            <tr>
-                <td>@book.Title</td>
-                <td>@book.Author</td>
-                <td>@book.Genre</td>
-                <td>$@book.Price</td>
-                <td>
-                    @{
-                        var availabilityText = book.InStock switch
+    <!-- Filter Section -->
+    <div class="card p-4 mb-4">
+        <form method="post" asp-action="Index">
+            <div class="row g-3">
+                <div class="col-md-4">
+                    <input type="text" name="searchQuery" placeholder="Search by title, ISBN, or description" class="form-control" />
+                </div>
+                <div class="col-md-2">
+                    <select name="filterAuthor" class="form-select">
+                        <option value="">All Authors</option>
+                        @foreach (var author in Model.Books.Select(b => b.Author).Distinct())
                         {
-                            0 => "Out of Stock",
-                            1 => "Yes",
-                            2 => "Library-Only"
-                        };
-                    }
-                    @availabilityText
-                </td>
-                <td>@book.Rating ⭐</td>
-
-                <td>
-                @using Microsoft.AspNetCore.Authorization
-                @if (User.Identity.IsAuthenticated)
-                {
-                    <div>
-                        <form method="post" asp-controller="Books" asp-action="Bookmark" style="display:inline-block; margin-bottom: 5px;">
-                            <input type="hidden" name="bookId" value="@book.Id" />
-                            <button type="submit" class="btn btn-outline-warning btn-sm" title="Bookmark">
-                                🔖 Bookmark
-                            </button>
-                        </form>
-
-                        @if (book.InStock == 1)
-                        {
-                            <form method="post" asp-controller="Cart" asp-action="AddToCart" style="display:inline-block">
-                                <input type="hidden" name="bookId" value="@book.Id" />
-                                <button type="submit" class="btn btn-outline-success btn-sm" title="Add to Cart">
-                                    🛒 Add to Cart
-                                </button>
-                            </form>
+                            <option value="@author">@author</option>
                         }
-                    </div>
+                    </select>
+                </div>
+                <div class="col-md-2">
+                    <select name="filterGenre" class="form-select">
+                        <option value="">All Genres</option>
+                        @foreach (var genre in Model.Books.Select(b => b.Genre).Distinct())
+                        {
+                            <option value="@genre">@genre</option>
+                        }
+                    </select>
+                </div>
+                <div class="col-md-2">
+                    <input type="number" name="filterPriceMin" placeholder="Min Price" class="form-control" />
+                </div>
+                <div class="col-md-2">
+                    <input type="number" name="filterPriceMax" placeholder="Max Price" class="form-control" />
+                </div>
+                <div class="col-md-3">
+                    <select name="filterAvailability" class="form-select">
+                        <option value="">All Availability</option>
+                        <option value=1>Available</option>
+                        <option value=0>Out of Stock</option>
+                        <option value=2>Library-Only</option>
+                    </select>
+                </div>
+                <div class="col-md-3">
+                    <select name="sortOrder" class="form-select">
+                        <option value="title">Sort by Title</option>
+                        <option value="publicationDate">Sort by Publication Date</option>
+                        <option value="price">Sort by Price</option>
+                        <option value="popularity">Sort by Popularity</option>
+                    </select>
+                </div>
+                <div class="col-md-3">
+                    <button type="submit" class="btn btn-primary w-100">Apply Filters</button>
+                </div>
+            </div>
+        </form>
+    </div>
+
+    <!-- Category Tabs -->
+    <div class="text-center mb-4">
+        @foreach (var cat in categories)
+        {
+            var label = cat
+            .Replace("awardwinners", "🏆 Award Winners")
+            .Replace("newreleases", "🆕 New Releases")
+            .Replace("newarrivals", "📦 New Arrivals")
+            .Replace("comingsoon", "⏳ Coming Soon")
+            .Replace("bestsellers", "📈 Best Sellers")
+            .Replace("deals", "💸 Deals")
+            .Replace("all", "All");
+
+            <form method="post" asp-action="Index" class="d-inline">
+                <input type="hidden" name="category" value="@cat" />
+                <input type="hidden" name="searchQuery" value="@Model.SearchQuery" />
+                <input type="hidden" name="filterAuthor" value="@Model.FilterAuthor" />
+                <input type="hidden" name="filterGenre" value="@Model.FilterGenre" />
+                <input type="hidden" name="filterPriceMin" value="@Model.FilterPriceMin" />
+                <input type="hidden" name="filterPriceMax" value="@Model.FilterPriceMax" />
+                <input type="hidden" name="sortOrder" value="@Model.SortOrder" />
+                <input type="hidden" name="filterAvailability" value="@Model.FilterAvailability" />
+                <input type="hidden" name="pageSize" value="@Model.PageSize" />
+                <button type="submit" class="btn btn-outline-secondary m-1 @(Model.Category?.Equals(cat, StringComparison.OrdinalIgnoreCase) == true ? "active" : "")">
+                    @label
+                </button>
+            </form>
+        }
+    </div>
+
+    <!-- Books Table -->
+    <div class="table-responsive">
+        <table class="table table-striped">
+            <thead class="table-light">
+                <tr>
+                    <th>Title</th>
+                    <th>Author</th>
+                    <th>Genre</th>
+                    <th>Price</th>
+                    <th>Availability</th>
+                    <th>Rating</th>
+                    <th>Actions</th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach (var book in Model.Books)
+                {
+                    <tr>
+                        <td>@book.Title</td>
+                        <td>@book.Author</td>
+                        <td>@book.Genre</td>
+                        <td>$@book.Price</td>
+                        <td>
+                            @{
+                                var availabilityText = book.InStock switch
+                                {
+                                    0 => "Out of Stock",
+                                    1 => "Yes",
+                                    2 => "Library-Only"
+                                };
+                            }
+                            @availabilityText
+                        </td>
+                        <td>@book.Rating ⭐</td>
+                        <td>
+                            @if (User.Identity.IsAuthenticated)
+                            {
+                                <div class="d-flex flex-column gap-1">
+                                    <form method="post" asp-controller="Books" asp-action="Bookmark">
+                                        <input type="hidden" name="bookId" value="@book.Id" />
+                                        <button type="submit" class="btn btn-outline-secondary btn-sm">🔖 Bookmark</button>
+                                    </form>
+
+                                    @if (book.InStock == 1)
+                                    {
+                                        <form method="post" asp-controller="Cart" asp-action="AddToCart">
+                                            <input type="hidden" name="bookId" value="@book.Id" />
+                                            <button type="submit" class="btn btn-outline-success btn-sm">🛒 Add to Cart</button>
+                                        </form>
+                                    }
+                                </div>
+                            }
+                            else
+                            {
+                                <span class="text-muted">Login to Bookmark or Buy</span>
+                            }
+                        </td>
+                    </tr>
                 }
-            else
+            </tbody>
+        </table>
+    </div>
+
+    <!-- Pagination -->
+    <nav aria-label="Page navigation">
+        <ul class="pagination justify-content-center">
+            @for (int i = 1; i <= (int)ViewBag.TotalPages; i++)
             {
-                <span class="text-muted">Login to Bookmark or Buy</span>
+                <li class="page-item @(i == (int)ViewBag.CurrentPage ? "active" : "")">
+                    <form method="post" asp-controller="Books" asp-action="Index">
+                        <input type="hidden" name="searchQuery" value="@Model.SearchQuery" />
+                        <input type="hidden" name="filterAuthor" value="@Model.FilterAuthor" />
+                        <input type="hidden" name="filterGenre" value="@Model.FilterGenre" />
+                        <input type="hidden" name="filterPriceMin" value="@Model.FilterPriceMin" />
+                        <input type="hidden" name="filterPriceMax" value="@Model.FilterPriceMax" />
+                        <input type="hidden" name="sortOrder" value="@Model.SortOrder" />
+                        <input type="hidden" name="filterAvailability" value="@Model.FilterAvailability" />
+                        <input type="hidden" name="pageSize" value="@Model.PageSize" />
+                        <input type="hidden" name="category" value="@Model.Category" />
+                        <button type="submit" name="page" value="@i" class="page-link">
+                            @i
+                        </button>
+                    </form>
+                </li>
             }
-                </td>
-            </tr>
-        }
-    </tbody>
-</table>
-
-@* <p>User is @(User.Identity.IsAuthenticated ? "logged in" : "logged out")</p> *@
-
-<!-- Pagination Controls -->
-<nav aria-label="Page navigation">
-    <ul class="pagination justify-content-center">
-        @for (int i = 1; i <= (int)ViewBag.TotalPages; i++)
-        {
-            <li class="page-item @(i == (int)ViewBag.CurrentPage ? "active" : "")">
-                <form method="post" asp-controller="Books" asp-action="Index">
-                    <input type="hidden" name="searchQuery" value="@Model.SearchQuery" />
-                    <input type="hidden" name="filterAuthor" value="@Model.FilterAuthor" />
-                    <input type="hidden" name="filterGenre" value="@Model.FilterGenre" />
-                    <input type="hidden" name="filterPriceMin" value="@Model.FilterPriceMin" />
-                    <input type="hidden" name="filterPriceMax" value="@Model.FilterPriceMax" />
-                    <input type="hidden" name="sortOrder" value="@Model.SortOrder" />
-                    <input type="hidden" name="filterAvailability" value="@Model.FilterAvailability" />
-                    <input type="hidden" name="pageSize" value="@Model.PageSize" />
-                    <input type="hidden" name="category" value="@Model.Category" />
-                    <button type="submit" name="page" value="@i" class="page-link">
-                        @i
-                    </button>
-                </form>
-            </li>
-        }
-    </ul>
-</nav>
-
-@* <nav aria-label="Page navigation">
-    <ul class="pagination justify-content-center">
-        @for (int i = 1; i <= (int)ViewBag.TotalPages; i++)
-        {
-            <li class="page-item @(i == (int)ViewBag.CurrentPage ? "active" : "")">
-                <a class="page-link" asp-action="Index" asp-route-page="@i">@i</a>
-            </li>
-        }
-    </ul>
-</nav> *@
+        </ul>
+    </nav>
+</div>
