@@ -1,0 +1,77 @@
+﻿@model List<LibraryWeb.Models.Book>
+
+@{
+    ViewData["Title"] = "Admin Portal";
+}
+
+<style>
+    .alert {
+        background-color: #dfe6e9;
+        color: #2d3436;
+        padding: 12px;
+        margin-bottom: 20px;
+        border-radius: 8px;
+        font-size: 14px;
+        text-align: center;
+    }
+</style>
+
+@if (TempData["NotificationMessage"] != null)
+{
+    <div class="alert alert-info" id="notificationMessage">
+        @TempData["NotificationMessage"]
+    </div>
+
+    @* js to automatically fade message after 3 seconds *@
+    <script>
+        setTimeout(() => {
+            const msg = document.getElementById('notificationMessage');
+            if (msg) {
+                msg.style.transition = 'opacity 0.5s ease-out';
+                msg.style.opacity = '0';
+                setTimeout(() => msg.remove(), 500); // remove from DOM after fade
+            }
+        }, 3000);
+    </script>
+}
+
+@* <h2>Admin - Book Catalog</h2> *@
+<a asp-action="Create" class="btn btn-primary mb-3">➕ Add New Book</a>
+
+<table class="table table-striped">
+    <thead>
+        <tr>
+            <th>Title</th>
+            <th>Author</th>
+            <th>Price</th>
+            <th>Discount/Sale</th>
+            <th>Actions</th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var book in Model)
+        {
+                <tr>
+                    <td>@book.Title</td>
+                    <td>@book.Author</td>
+                    <td>$@book.Price</td>
+                    <td>
+                    @if (book.Discount != 0)
+                    {
+                        <span class="text-success">@((book.Discount * 100).ToString("0"))% off</span>
+                    }
+                    else
+                    {
+                                <span class="text-muted">N/A</span>
+                    }
+                    </td>
+                    <td>
+                        <a asp-action="Edit" asp-route-id="@book.Id" class="btn btn-sm btn-warning">Edit</a>
+                        <form method="post" asp-action="Delete" asp-route-id="@book.Id" style="display:inline;">
+                            <button class="btn btn-sm btn-danger">Delete</button>
+                        </form>
+                    </td>
+                </tr>
+        }
+    </tbody>
+</table>

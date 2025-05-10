@@ -60,7 +60,7 @@ namespace LibraryAPI.Services
                 new Claim(JwtRegisteredClaimNames.Sub, member.Id.ToString()),
                 new Claim(JwtRegisteredClaimNames.Email, member.Email),
                 new Claim(ClaimTypes.Name, member.FullName),
-                new Claim("role", "Member")
+                new Claim(ClaimTypes.Role, member.IsAdmin ? "Admin" : "Member")
             };
 
             var key = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(_configuration["Jwt:Key"]));

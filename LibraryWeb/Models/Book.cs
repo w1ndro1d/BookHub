@@ -18,7 +18,7 @@
         //added later
         public bool IsBestseller { get; set; }
         public bool HasAwards { get; set; }
-        public DateTime ListedDate { get; set; }
+        public DateTime ListedDate { get; set; } = DateTime.Now;
         public decimal Discount { get; set; }  // 0-no discount
     }
 }

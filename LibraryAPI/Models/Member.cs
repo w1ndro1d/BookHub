@@ -12,5 +12,6 @@
         public ICollection<Order> Orders { get; set; }
         public ICollection<Review> Reviews { get; set; }
         public ICollection<Book> Whitelist { get; set; }
+        public bool IsAdmin { get; set; } = false;
     }
 }
