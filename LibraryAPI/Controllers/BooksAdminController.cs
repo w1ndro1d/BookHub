@@ -18,6 +18,7 @@ namespace LibraryAPI.Controllers
             _dbContext = dbContext;
         }
 
+        #region ADMIN CRUD
         // GET: api/admin/books
         [HttpGet]
         public async Task<IActionResult> GetAllBooks()
@@ -80,5 +81,102 @@ namespace LibraryAPI.Controllers
 
             return NoContent();
         }
+        #endregion ADMIN CRUD
+
+
+        #region Admin Announcements
+        //for announcements
+        [HttpGet("announcements")]
+        public IActionResult GetActiveAnnouncements()
+        {
+            //var now = DateTime.UtcNow;
+            //var active = _dbContext.Announcements
+            //    .Where(a =>
+            //        (a.StartDate == null || a.StartDate <= now) &&
+            //        (a.EndDate == null || a.EndDate >= now))
+            //    .OrderByDescending(a => a.IsPinned)
+            //    .ThenByDescending(a => a.CreatedAt)
+            //    .ToList();
+
+            // Fetch all announcements, without checking dates
+            var allAnnouncements = _dbContext.Announcements
+                .OrderByDescending(a => a.IsPinned)
+                .ThenByDescending(a => a.CreatedAt)
+                .ToList();
+
+            return Ok(allAnnouncements);
+        }
+
+        [HttpPost("announcements")]
+        public IActionResult CreateAnnouncement([FromBody] Announcement announcement)
+        {
+            if (!ModelState.IsValid) return BadRequest(ModelState);
+            announcement.CreatedAt = DateTime.Now;
+
+            ////if another announcement is already pinned, make sure only the latest addition gets pinned
+            //if (announcement.IsPinned)
+            //{
+            //    var alreadyPinned = _dbContext.Announcements
+            //        .FirstOrDefault(a => a.IsPinned && a.Id != announcement.Id);
+
+            //    if (alreadyPinned != null)
+            //    {
+            //        alreadyPinned.IsPinned = false;
+            //        _dbContext.Announcements.Update(alreadyPinned);
+            //    }
+            //}
+
+            _dbContext.Announcements.Add(announcement);
+            _dbContext.SaveChanges();
+            return Ok(announcement);
+        }
+
+        [HttpPut("announcements/{id}")]
+        public IActionResult UpdateAnnouncement(int id, [FromBody] Announcement updated)
+        {
+            var existing = _dbContext.Announcements.Find(id);
+            if (existing == null) return NotFound();
+
+            existing.Title = updated.Title;
+            existing.Message = updated.Message;
+            existing.StartDate = updated.StartDate;
+            existing.EndDate = updated.EndDate;
+            existing.IsPinned = updated.IsPinned;
+
+            _dbContext.SaveChanges();
+            return Ok();
+        }
+
+        [HttpDelete("announcements/{id}")]
+        public IActionResult DeleteAnnouncement(int id)
+        {
+            var a = _dbContext.Announcements.Find(id);
+            if (a == null) return NotFound();
+
+            _dbContext.Announcements.Remove(a);
+            _dbContext.SaveChanges();
+            return Ok();
+        }
+
+
+
+        //public api route for non-admins, to display announcements on homepage
+        [AllowAnonymous]
+        [HttpGet("announcements/public")]
+        public IActionResult GetPublicAnnouncements()
+        {
+            var today = DateTime.Today;
+
+            var publicAnnouncements = _dbContext.Announcements
+                .Where(a => a.IsPinned == true &&
+                            a.StartDate.HasValue && a.EndDate.HasValue &&
+                            a.StartDate.Value.Date <= today &&
+                            a.EndDate.Value.Date >= today)
+                .ToList();
+
+            return Ok(publicAnnouncements);
+        }
+
+        #endregion Admin Announcements
     }
 }

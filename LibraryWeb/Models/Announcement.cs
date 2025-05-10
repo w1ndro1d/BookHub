@@ -1,4 +1,4 @@
-﻿namespace LibraryAPI.Models
+﻿namespace LibraryWeb.Models
 {
     public class Announcement
     {

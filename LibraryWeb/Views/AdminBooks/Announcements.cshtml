@@ -1,0 +1,72 @@
+﻿@model List<LibraryWeb.Models.Announcement>
+@{
+    ViewData["Title"] = "Announcements";
+}
+
+@* <h1>@ViewData["Title"]</h1> *@
+
+<style>
+    .alert {
+        background-color: #dfe6e9;
+        color: #2d3436;
+        padding: 12px;
+        margin-bottom: 20px;
+        border-radius: 8px;
+        font-size: 14px;
+        text-align: center;
+    }
+</style>
+
+@if (TempData["NotificationMessage"] != null)
+{
+    <div class="alert alert-info" id="notificationMessage">
+        @TempData["NotificationMessage"]
+    </div>
+
+    @* js to automatically fade message after 2 seconds *@
+    <script>
+        setTimeout(() => {
+            const msg = document.getElementById('notificationMessage');
+            if (msg) {
+                msg.style.transition = 'opacity 0.5s ease-out';
+                msg.style.opacity = '0';
+                setTimeout(() => msg.remove(), 500); // remove from DOM after fade
+            }
+        }, 2000);
+    </script>
+}
+
+<div class="mb-3">
+    <a href="@Url.Action("CreateAnnouncement", "AdminBooks")" class="btn btn-primary">➕ Create New Announcement</a>
+</div>
+
+<table class="table table-striped">
+    <thead>
+        <tr>
+            <th>Title</th>
+            <th>Message</th>
+            <th>Start Date</th>
+            <th>End Date</th>
+            <th>Actions</th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var announcement in Model)
+        {
+            <tr>
+                <td>@announcement.Title</td>
+                <td>@announcement.Message</td>
+                <td>@announcement.StartDate?.ToString("yyyy-MM-dd")</td>
+                <td>@announcement.EndDate?.ToString("yyyy-MM-dd")</td>
+                <td>
+                    <div class="d-flex justify-content-start gap-2">
+                        <a href="@Url.Action("EditAnnouncement", "AdminBooks", new { id = announcement.Id })" class="btn btn-warning btn-sm">Edit</a>
+                        <form action="@Url.Action("DeleteAnnouncement", "AdminBooks", new { id = announcement.Id })" method="post" ;">
+                            <button type="submit" class="btn btn-danger btn-sm">Delete</button>
+                        </form>
+                    </div>
+                </td>
+            </tr>
+        }
+    </tbody>
+</table>

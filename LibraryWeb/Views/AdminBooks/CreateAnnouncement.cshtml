@@ -1,0 +1,138 @@
+﻿@model LibraryWeb.Models.Announcement
+@{
+    ViewData["Title"] = "Create Announcement";
+}
+
+<style>
+    .form-container {
+        max-width: 800px;
+        margin: 30px auto;
+        padding: 30px;
+        background: #fff;
+        border-radius: 12px;
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+        font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    }
+
+        .form-container h2 {
+            text-align: center;
+            margin-bottom: 25px;
+            font-weight: 700;
+            color: #333;
+        }
+
+    .form-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+        gap: 20px;
+    }
+
+    .form-group {
+        display: flex;
+        flex-direction: column;
+    }
+
+        .form-group label {
+            font-weight: 600;
+            margin-bottom: 6px;
+            color: #333;
+        }
+
+        .form-group input,
+        .form-group textarea {
+            padding: 10px;
+            font-size: 14px;
+            border: 1px solid #ccc;
+            border-radius: 6px;
+            outline: none;
+            transition: border-color 0.2s;
+        }
+
+            .form-group input:focus,
+            .form-group textarea:focus {
+                border-color: #28a745;
+            }
+
+    .checkbox-group {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        padding: 10px;
+        background-color: #f9f9f9;
+        border-radius: 6px;
+    }
+
+    .button-group {
+        grid-column: 1 / -1;
+        display: flex;
+        justify-content: flex-start;
+        gap: 12px;
+        margin-top: 24px;
+    }
+
+    button, .btn-secondary {
+        padding: 10px 18px;
+        font-size: 15px;
+        border: none;
+        border-radius: 6px;
+        cursor: pointer;
+        font-weight: 600;
+        text-decoration: none;
+    }
+
+    .btn-primary {
+        background-color: #28a745;
+        color: #fff;
+    }
+
+    .btn-secondary {
+        background-color: #ddd;
+        color: #333;
+    }
+
+    .btn-primary:hover {
+        background-color: #218838;
+    }
+
+    .btn-secondary:hover {
+        background-color: #bbb;
+    }
+</style>
+
+<div class="form-container">
+    <h2>📢 Create Announcement</h2>
+
+    <form method="post">
+        <div class="form-grid">
+            <div class="form-group">
+                <label for="Title">Title</label>
+                <input type="text" name="Title" id="Title" value="@Model.Title" required />
+            </div>
+
+            <div class="form-group">
+                <label for="StartDate">Start Date</label>
+                <input type="date" name="StartDate" id="StartDate" value="@Model.StartDate?.ToString("yyyy-MM-dd")" required />
+            </div>
+
+            <div class="form-group">
+                <label for="EndDate">End Date</label>
+                <input type="date" name="EndDate" id="EndDate" value="@Model.EndDate?.ToString("yyyy-MM-dd")" required />
+            </div>
+
+            <div class="form-group full-width">
+                <label for="Message">Message</label>
+                <textarea name="Message" id="Message" rows="4" required>@Model.Message</textarea>
+            </div>
+
+            <div class="checkbox-group full-width">
+                <input asp-for="IsPinned" type="checkbox" />
+                <label asp-for="IsPinned">Pin this announcement</label>
+            </div>
+
+            <div class="button-group">
+                <button type="submit" class="btn-primary">Create</button>
+                <a asp-action="Announcements" class="btn-secondary">Cancel</a>
+            </div>
+        </div>
+    </form>
+</div>

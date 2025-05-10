@@ -1,9 +1,23 @@
 ﻿@{
     ViewData["Title"] = "Home";
+    var announcement = ViewBag.PinnedAnnouncement;
 }
 
 <div class="container py-5">
     <div class="text-center mb-5">
+
+        @* marquee for announcement *@
+        @if (announcement != null)
+        {
+            <div class="alert alert-warning py-2 px-3 text-center rounded">
+                <div class="announcement-marquee overflow-hidden">
+                    <div class="scrolling-text">
+                        📢 <strong>@announcement.Title:</strong> @announcement.Message
+                    </div>
+                </div>
+            </div>
+        }
+
         <h1 class="display-4">Welcome to the Book Library Store</h1>
         <p class="lead text-muted">
             Explore, bookmark, and order from our private collection of books — now available for online browsing and in-store pickup!

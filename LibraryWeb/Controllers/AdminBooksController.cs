@@ -1,6 +1,7 @@
 ﻿using LibraryWeb.Models;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
 using System.Net.Http.Headers;
 
 namespace LibraryWeb.Controllers
@@ -32,6 +33,7 @@ namespace LibraryWeb.Controllers
 
         public IActionResult Create() => View();
 
+        #region ADMIN CRUD
         [HttpPost]
         public async Task<IActionResult> Create(Book model)
         {
@@ -112,5 +114,107 @@ namespace LibraryWeb.Controllers
 
             return RedirectToAction("Index");
         }
+
+        #endregion ADMIN CRUD
+
+        #region ADMIN ANNOUNCEMENTS
+
+        public async Task<IActionResult> Announcements()
+        {
+            var client = GetAuthorizedClient();
+            var response = await client.GetAsync("api/booksadmin/announcements");
+            if (!response.IsSuccessStatusCode)
+            {
+                TempData["NotificationMessage"] = "Failed to load announcements!";
+                return View(new List<Announcement>());
+            }
+
+            var data = await response.Content.ReadFromJsonAsync<List<Announcement>>();
+            return View(data);
+        }
+
+        public IActionResult CreateAnnouncement()
+        {
+            return View(new Announcement());
+        }
+
+        [HttpPost]
+        public async Task<IActionResult> CreateAnnouncement(Announcement model)
+        {
+            if (!ModelState.IsValid) return View(model);
+
+            var client = GetAuthorizedClient();
+            var response = await client.PostAsJsonAsync("api/booksadmin/announcements", model);
+
+            if (response.IsSuccessStatusCode)
+            {
+                TempData["NotificationMessage"] = "Announcement created!";
+                return RedirectToAction("Announcements");
+            }
+
+            TempData["NotificationMessage"] = "Failed to create announcement.";
+            return View(model);
+        }
+
+        [HttpGet]
+        public async Task<IActionResult> EditAnnouncement(int id)
+        {
+            var client = GetAuthorizedClient();
+            var announcements = await client.GetFromJsonAsync<List<Announcement>>("api/booksadmin/announcements");
+
+            if (announcements == null)
+            {
+                TempData["NotificationMessage"] = "Announcements could not be loaded.";
+                return RedirectToAction("Announcements");
+            }
+
+            var model = announcements.FirstOrDefault(a => a.Id == id);
+            if (model == null)
+            {
+                TempData["NotificationMessage"] = $"Announcement with ID {id} not found.";
+                return RedirectToAction("Announcements");
+            }
+
+            return View(model);
+        }
+
+        [HttpPost]
+        public async Task<IActionResult> EditAnnouncement(int id, Announcement model)
+        {
+            if (!ModelState.IsValid) return View(model);
+
+            var client = GetAuthorizedClient();
+            var response = await client.PutAsJsonAsync($"api/booksadmin/announcements/{id}", model);
+
+            if (response.IsSuccessStatusCode)
+            {
+                TempData["NotificationMessage"] = "Announcement updated!";
+                return RedirectToAction("Announcements");
+            }
+
+            TempData["NotificationMessage"] = "Failed to update announcement.";
+            return View(model);
+        }
+
+        [HttpPost]
+        public async Task<IActionResult> DeleteAnnouncement(int id)
+        {
+            var client = GetAuthorizedClient();
+            var response = await client.DeleteAsync($"api/booksadmin/announcements/{id}");
+
+            if (response.IsSuccessStatusCode)
+            {
+                TempData["NotificationMessage"] = "Announcement deleted.";
+            }
+            else
+            {
+                TempData["NotificationMessage"] = "Failed to delete announcement.";
+            }
+
+            return RedirectToAction("Announcements");
+        }
+
+
+        #endregion ADMIN ANNOUNCEMENTS
     }
 }

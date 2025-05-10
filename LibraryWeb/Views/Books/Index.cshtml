@@ -196,7 +196,7 @@
                         <td>
                             @if (User.Identity.IsAuthenticated)
                             {
-                                <div class="d-flex flex-column gap-1">
+                                <div class="d-flex flex-row gap-1">
                                     <form method="post" asp-controller="Books" asp-action="Bookmark">
                                         <input type="hidden" name="bookId" value="@book.Id" />
                                         <button type="submit" class="btn btn-outline-secondary btn-sm">🔖 Bookmark</button>
