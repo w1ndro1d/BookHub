@@ -52,6 +52,7 @@ else
                 <th>Qty</th>
                 <th>Price</th>
                 <th>Subtotal</th>
+                <th>Listed Discount</th>
                 <th>Actions</th>
             </tr>
         </thead>
@@ -64,6 +65,7 @@ else
                     <td>@item.Quantity</td>
                     <td>$@item.Price</td>
                     <td>$@(item.Price * item.Quantity)</td>
+                    <td>@(item.Discount * 100)%</td>
                     <td>
                         <form method="post" asp-action="RemoveFromCart">
                             <input type="hidden" name="bookId" value="@item.BookId" />
@@ -81,7 +83,7 @@ else
 
         @if (Model.Discount > 0)
         {
-            <p><strong>Discount:</strong> -$@Model.Discount.ToString("0.00")</p>
+            <p><strong>Additional Discount:</strong> -$@Model.Discount.ToString("0.00")</p>
 
             @if (Model.AppliedDiscount.Any())
             {

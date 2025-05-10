@@ -119,16 +119,17 @@ namespace LibraryAPI.Controllers
                 ci.Book.Author,
                 ci.Book.Price,
                 ci.Quantity,
-                TotalPrice = ci.Book.Price * ci.Quantity
+                ci.Book.Discount,   //listed discount in db
+                TotalPrice = (ci.Book.Price * ci.Quantity) - ci.Book.Discount * (ci.Book.Price * ci.Quantity)   //we need to subtract individual discount amount if its applicable as well
             }).ToList();
 
             var subtotal = items.Sum(i => i.TotalPrice);
             var totalQuantity = items.Sum(i => i.Quantity);
-
+            
             decimal discountAmount = 0;
             var discounts = new List<string>();
-
-            // Loyalty Discount (every 10th order)
+            
+            //loyalty Discount (every 10th order)
             var orderCount = _dbContext.Orders.Count(o => o.MemberId == memberId) + 1;
             if (orderCount > 0 && orderCount % 10 == 0)
             {
@@ -136,7 +137,7 @@ namespace LibraryAPI.Controllers
                 discounts.Add("10% Loyalty Discount (only available after 10 successful orders)");
             }
 
-            // Bulk purchase discount(5%)
+            //bulk purchase discount(5%)
             if (totalQuantity >= 5)
             {
                 discountAmount += subtotal * 0.05m;

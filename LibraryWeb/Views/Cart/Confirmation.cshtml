@@ -18,7 +18,7 @@
 @if (Model.HasDiscount)
 {
     <p><strong>Subtotal:</strong> $@subTotal.ToString("0.00")</p>
-    <p><strong>Discount:</strong> -$@discount.ToString("0.00")</p>
+    <p><strong>Additional Discount:</strong> -$@discount.ToString("0.00")</p>
 
     @if (Model.AppliedDiscount.Any())
     {

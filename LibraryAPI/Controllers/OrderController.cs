@@ -57,7 +57,8 @@ namespace LibraryAPI.Controllers
                 {
                     BookId = item.BookId,
                     Quantity = item.Quantity,
-                    UnitPrice = item.Book.Price
+                    UnitPrice = item.Book.Price,
+                    ListedDiscount = item.Book.Discount
                 };
 
                 order.OrderItems.Add(orderItem);
@@ -115,7 +116,8 @@ namespace LibraryAPI.Controllers
                 {
                     i.Book.Title,
                     i.Quantity,
-                    i.UnitPrice
+                    i.UnitPrice,
+                    i.ListedDiscount
                 })
             }));
         }
@@ -143,7 +145,7 @@ namespace LibraryAPI.Controllers
         // refactored discount and total logic
         private async Task<List<string>> ApplyDiscountsAndCalculateTotals(Order order, int memberId)
         {
-            var subTotal = order.OrderItems.Sum(i => i.UnitPrice * i.Quantity);
+            var subTotal = order.OrderItems.Sum(i => (i.UnitPrice * i.Quantity) - i.ListedDiscount * (i.UnitPrice * i.Quantity));    //apply discount listed in db
             int totalBooks = order.OrderItems.Sum(i => i.Quantity);
             var discounts = new List<string>();
             decimal discountAmount = 0;
@@ -171,7 +173,7 @@ namespace LibraryAPI.Controllers
 
         private async Task SendConfirmationEmail(Order order, string recipientEmail, List<string> appliedDiscounts)
         {
-            decimal subTotal = order.OrderItems.Sum(i => i.Quantity * i.UnitPrice);
+            decimal subTotal = order.OrderItems.Sum(i => (i.Quantity * i.UnitPrice) - i.ListedDiscount*(i.Quantity * i.UnitPrice));
             
             var emailBody = $@"
             <div style='font-family:Arial,sans-serif;max-width:600px;margin:auto;border:1px solid #ddd;border-radius:6px;overflow:hidden;'>
@@ -189,6 +191,7 @@ namespace LibraryAPI.Controllers
                                 <th style='border-bottom:1px solid #ddd;text-align:left;padding:8px;'>Quantity</th>
                                 <th style='border-bottom:1px solid #ddd;text-align:left;padding:8px;'>Unit Price</th>
                                 <th style='border-bottom:1px solid #ddd;text-align:left;padding:8px;'>Subtotal</th>
+                                <th style='border-bottom:1px solid #ddd;text-align:left;padding:8px;'>Listed Discount</th>
                             </tr>
                         </thead>
                         <tbody>";
@@ -201,6 +204,7 @@ namespace LibraryAPI.Controllers
                                 <td style='padding:8px;border-bottom:1px solid #eee;'>{item.Quantity}</td>
                                 <td style='padding:8px;border-bottom:1px solid #eee;'>$ {item.UnitPrice:N2}</td>
                                 <td style='padding:8px;border-bottom:1px solid #eee;'>$ {item.Quantity * item.UnitPrice:N2}</td>
+                                <td style='padding:8px;border-bottom:1px solid #eee;'>{item.Book.Discount * 100:N2}%</td>
                             </tr>";
             }
 
@@ -210,7 +214,7 @@ namespace LibraryAPI.Controllers
 
                         <p style='margin-top:16px;'>
                             <strong>Total:</strong> $ {subTotal:N2}<br/>
-                            <strong>Discount Amount:</strong> -$ {order.DiscountAmount:N2}<br/>
+                            <strong>Additional Discount Amount:</strong> -$ {order.DiscountAmount:N2}<br/>
                             <strong>Total Payable Amount:</strong> $ {order.TotalAmount:N2}
                         </p>";
 
@@ -218,7 +222,7 @@ namespace LibraryAPI.Controllers
             {
                 emailBody += @"
                     <p style='margin-top:8px;'>
-                        <strong>Discounts Applied:</strong><br/>
+                        <strong>Additional Discounts Applied:</strong><br/>
                         <ul style='padding-left:20px;margin-top:4px;margin-bottom:12px;'>";
 
                 foreach (var discount in appliedDiscounts)

@@ -7,5 +7,6 @@
         public string Author { get; set; }
         public decimal Price { get; set; }
         public int Quantity { get; set; }
+        public decimal Discount { get; set; }   //this is the original listed discount in db
     }
 }
