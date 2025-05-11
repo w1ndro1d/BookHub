@@ -118,18 +118,6 @@ In the appsettings.json, also update this SMTP key to your own gmail email and a
 │   └── Views/          # Razor views (UI)
 ```
 
-🔑 Key API Endpoints
-```
-Endpoint	Description
-POST /api/auth/register	Register new member
-POST /api/auth/login	Login + receive JWT
-GET /api/books	Browse/filter books
-POST /api/cart/add/{bookId}	Add book to cart
-POST /api/order	Place an order
-GET /api/order	View member orders
-GET/POST/PUT/DELETE /api/admin/books	Admin-only book management
-```
-
 🧾 Admin Seeder (Optional)
 Add this to your Program.cs (API side) to seed an admin user:
 
