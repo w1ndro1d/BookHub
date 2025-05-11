@@ -40,15 +40,14 @@ BookHub is a complete online book retail and in-store pickup platform built with
   
 
 **Running the Project**
+
 **1. Open the Solution**
 Open BookHub.sln in Visual Studio.
 
 **2. Set Both Projects to Run Simultaneously**
 Right-click the Solution (BookHub) > Set Startup Projects
 
-Choose Multiple startup projects
-
-Set both LibraryAPI and LibraryWeb to Start
+Choose Multiple startup projects: Set both LibraryAPI and LibraryWeb to Start
 This ensures pressing F5 runs both backend and frontend together.
 
 **3. Configure SQL Server Connection**
@@ -75,7 +74,7 @@ Press F5 (or Ctrl + F5) and both projects will run.
 
 Or run individually:
 
-cd LibraryAPI
+```cd LibraryAPI
 dotnet run
 
 cd ../LibraryWeb
@@ -83,6 +82,7 @@ dotnet run
 API: https://localhost:7110
 
 Web: https://localhost:7171
+```
 
 **Admin Setup**
 By default, all registered users are Members. To promote one to Admin, run this SQL:
@@ -116,9 +116,10 @@ In the appsettings.json, also update this SMTP key to your own gmail email and a
 ├── LibraryWeb/         # Razor Pages MVC frontend
 │   ├── Controllers/    # UI controllers (Books, Cart, Orders)
 │   └── Views/          # Razor views (UI)
-
+```
 
 🔑 Key API Endpoints
+```
 Endpoint	Description
 POST /api/auth/register	Register new member
 POST /api/auth/login	Login + receive JWT
@@ -127,12 +128,12 @@ POST /api/cart/add/{bookId}	Add book to cart
 POST /api/order	Place an order
 GET /api/order	View member orders
 GET/POST/PUT/DELETE /api/admin/books	Admin-only book management
-
+```
 
 🧾 Admin Seeder (Optional)
 Add this to your Program.cs (API side) to seed an admin user:
 
-
+```
 if (!context.Members.Any())
 {
     context.Members.Add(new Member
@@ -145,7 +146,7 @@ if (!context.Members.Any())
     });
     context.SaveChanges();
 }
-
+```
 Then use:
 Email: admin@example.com
 Password: Admin@123
