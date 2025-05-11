@@ -61,10 +61,12 @@ Replace the Server name if needed (e.g. localhost\\SQLEXPRESS, or your machine's
 
 
 **4. Apply Migrations (First Run Only)**
-To generate database tables:
 
+To generate database tables:
+```
 cd LibraryAPI
 dotnet ef database update
+```
 
 This applies the latest schema migration and creates BookHubDB.
 
@@ -88,11 +90,6 @@ Web: https://localhost:7171
 By default, all registered users are Members. To promote one to Admin, run this SQL:
 
 UPDATE Members SET IsAdmin = 1 WHERE Email = 'admin@example.com';
-Use that login to access:
-
-/AdminBooks — manage books, inventory, discounts
-
-/AdminAnnouncements — (coming soon)
 
 
 In the appsettings.json, also update this SMTP key to your own gmail email and app password. This will be used to send email confirmation to registered user's inbox.
@@ -136,8 +133,10 @@ if (!context.Members.Any())
 }
 ```
 Then use:
+
 Email: admin@example.com
 Password: Admin@123
 
 📝 License
+
 MIT — free to use, modify, and distribute.
