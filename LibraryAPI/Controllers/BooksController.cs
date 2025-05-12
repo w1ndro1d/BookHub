@@ -18,22 +18,6 @@ namespace LibraryAPI.Controllers
             _dbContext = dbContext;
         }
 
-        [HttpPost]
-        [Authorize]
-        public async Task<IActionResult> Bookmark(int bookId)
-        {
-            var member = await _dbContext.Members.Include(m => m.Whitelist).FirstOrDefaultAsync(m => m.Email == User.Identity.Name);
-            var book = await _dbContext.Books.FindAsync(bookId);
-
-            if(member != null && book != null && !member.Whitelist.Contains(book))
-            {
-                member.Whitelist.Add(book);
-                await _dbContext.SaveChangesAsync();
-            }
-
-            return RedirectToAction("Index");
-        }
-
         // This method returns all books without any filters
         [HttpGet("all")]
         public async Task<ActionResult<IEnumerable<Book>>> GetAllBooks()
