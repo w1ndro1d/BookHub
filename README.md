@@ -98,7 +98,7 @@ In the appsettings.json, also update this SMTP key to your own gmail email and a
   "Host": "smtp.gmail.com",
   "Port": 587,
   "Username": "laibarystorer@gmail.com",
-  "Password": "oiyqtcpmmhypiacu" //gmail smtp requires app password. this is the app password for 'SMTP Mail' app created from security options
+  "Password": "asdasdasdasd" //gmail smtp requires app password. this is the app password for 'SMTP Mail' app created from security options
 },
 
 
