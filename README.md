@@ -2,6 +2,9 @@
 
 BookHub is a complete online book retail and in-store pickup platform built with **ASP.NET Core Web API** and **Razor Pages**. It supports secure member logins, catalog filtering, cart and order management, bookmarks, and an admin dashboard for managing books, discounts, and announcements.
 
+<img width="1895" height="1002" alt="book-library-store" src="https://github.com/user-attachments/assets/96bba960-c6ca-403f-ad0e-4f3960f0c99c" />
+
+
 ---
 
 ## Tech Stack
